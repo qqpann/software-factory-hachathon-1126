@@ -115,6 +115,11 @@ if (browser) {
     assert.ok(r.pass, r.checks.filter((c) => !c.pass).map((c) => `${c.id}: ${c.detail}`).join('\n'));
   });
 
+  await test('機械判定: マウスだけで遊ぶ見本も合格', async () => {
+    const r = await runGate(fx('sample-clicker.html'), path.join(tmp, 'click'), { browser });
+    assert.ok(r.pass, r.checks.filter((c) => !c.pass).map((c) => `${c.id}: ${c.detail}`).join('\n'));
+  });
+
   await test('機械判定: 壊れた見本は不合格', async () => {
     const r = await runGate(fx('broken.html'), path.join(tmp, 'ng'), { browser });
     assert.equal(r.pass, false);

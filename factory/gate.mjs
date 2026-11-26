@@ -1,9 +1,11 @@
 import path from 'node:path';
-import { launchBrowser, openGame, startGame, PLAY_KEYS } from './lib/browser.mjs';
+import { launchBrowser, openGame, startGame, PLAY_KEYS, VIEWPORT } from './lib/browser.mjs';
 import { staticCheck } from './static-check.mjs';
 import { ensureDir, writeJson, parseArgs, rel } from './lib/util.mjs';
 
 const VALID_STATES = ['title', 'playing', 'won', 'lost'];
+// A 3x3 grid over the 960x720 viewport plus the center.
+const PROBE_CLICKS = [[480, 360], ...[160, 480, 800].flatMap((x) => [120, 360, 600].map((y) => [x, y]))];
 
 function mulberry(seed) {
   let s = seed | 0;
@@ -57,9 +59,13 @@ export async function runGate(htmlPath, outDir, { browser: shared } = {}) {
       const run = async (withInput) => {
         const h = await openGame(browser, htmlPath, { seed: 11 });
         await startGame(h);
+        // Inputs must not cancel each other out (e.g. Left then Right for the
+        // same time lands on the same pixels). Keys first, then clicks, so
+        // both keyboard games and click/button games (clickers) respond.
         if (withInput) {
-          for (const k of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'Space']) await h.hold(k, 250);
-        } else await h.advance(1000);
+          for (const [k, ms] of [['ArrowLeft', 300], ['ArrowUp', 150], ['Space', 100], ['KeyZ', 50]]) await h.hold(k, ms);
+          for (const [x, y] of PROBE_CLICKS) await h.click(x, y, 25);
+        } else await h.advance(600 + PROBE_CLICKS.length * 25);
         const buf = await h.page.screenshot();
         errors.push(...h.errors);
         await h.close();
@@ -91,9 +97,13 @@ export async function runGate(htmlPath, outDir, { browser: shared } = {}) {
       const first = await m.readGame();
       let changed = false;
       for (let t = 0; t < 90000; ) {
-        const key = PLAY_KEYS[Math.floor(rnd() * PLAY_KEYS.length)];
         const ms = 80 + Math.floor(rnd() * 400);
-        await m.hold(key, ms);
+        if (rnd() < 0.3) {
+          // Random click, so mouse-driven games are exercised too.
+          await m.click(Math.floor(rnd() * VIEWPORT.width), Math.floor(rnd() * VIEWPORT.height), ms);
+        } else {
+          await m.hold(PLAY_KEYS[Math.floor(rnd() * PLAY_KEYS.length)], ms);
+        }
         t += ms;
         const s = await m.readGame();
         if (!s) break;
