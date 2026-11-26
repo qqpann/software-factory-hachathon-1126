@@ -1,0 +1,373 @@
+{
+  "slug": "paperclip",
+  "brief": "briefs/paperclip.md",
+  "opts": {
+    "maxRounds": 6,
+    "threshold": 0.75,
+    "patience": 3,
+    "maxCost": 15,
+    "actions": 120,
+    "mock": false
+  },
+  "stopReason": "completed",
+  "bestRound": 2,
+  "bestScore": 0.85,
+  "cost": 8.9487178,
+  "rounds": [
+    {
+      "round": 1,
+      "roundDir": "runs/paperclip/20261126-120221/round-1",
+      "score": 0.73,
+      "build": {
+        "ok": true,
+        "summary": "「まがりがね工房」を `index.html` 1枚で新しく作りました。この環境ではスクリプトの実行もブラウザでの表示も許可されず、動作確認とクリア時間のシミュレーションは一度もできていません（クリア時間は手計算の見積もりで、上手に遊んで約7分）。\n遊びの中身：手作り→町工場→工場→大工場の4段階で、曲げ機・プレス機・自動ライン・販売員・ペンチ・品質・整備が順に解放されます。針金は相場が上下し、切れると生産が止まります。出荷100,000本でクリアし、Space/Enterで再開できます。\n見た目と安定：作業員・機械・コンベア・トラックをCanvasで動かし、文字とボタンは固定サイズ・等幅数字にしました。数値は冒頭の定数表 `CFG` 1か所にまとめています。",
+        "costUsd": 2.6334316
+      },
+      "gate": {
+        "pass": true,
+        "passed": 16,
+        "total": 16,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "47KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "47KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「まがりがね工房」 goal=ペーパークリップを累計 100,000本 出荷するとクリア / controls=画面下のボタンをクリック（キーボード：Space/Zで作る・Xで売る・C/V/B/Nで針金を買う・1〜7で設備を買う）"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 169151 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "入力ありと入力なしで画面が変わる"
+          },
+          {
+            "id": "no_layout_shift",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作中のレイアウトシフト 合計0・1回（上限 0.05・3回）"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.61,
+        "review": {
+          "scores": {
+            "clarity": 4,
+            "controls": 3,
+            "goal": 2,
+            "fairness": 3,
+            "fun": 3,
+            "brief_fit": 3,
+            "visuals": 4,
+            "stability": 5,
+            "depth": 4
+          },
+          "reached": "neither",
+          "bugs": [
+            {
+              "what": "「作る」(Space/クリック) を約0.15秒間隔で押すと半分ほどが無視される。12回押して6本しかできず、無視されたことが画面に出ない",
+              "evidence": "play/015.png"
+            },
+            {
+              "what": "機械を買ったときの『曲げ機 稼働！』『プレス機 稼働！』が機械ラベル（×台・毎秒◯本）に重なって読めない",
+              "evidence": "play/095.png"
+            },
+            {
+              "what": "段階3で毎秒91本を消費するのに、針金は最大1,000本巻き（約11秒分）しか買えず、すぐ針金切れで全機械が止まる。ほぼ10秒ごとに補充が要る作業になっている",
+              "evidence": "play/119.png"
+            },
+            {
+              "what": "6分35秒で出荷8,620/100,000本（8.6%）。上手に遊んでも目安6〜10分を大きく超えそうなペース",
+              "evidence": "play/119.png"
+            }
+          ],
+          "fixes": [
+            "クリアまでのペースを6〜10分に合わせる：目標本数を下げる（例：30,000〜40,000本）か、段階3〜4の生産量の伸び（プレス機の効果、自動ラインの解放を早める等）を強めて、上手な人が7〜9分でクリアできるようにする",
+            "針金の補充が10秒ごとの作業にならないようにする：10,000本巻きを段階3（1,500本）で解放する、針金を自動で買う『仕入れ係』を設備として追加する、消費量に応じてリールの容量を増やす、のいずれか",
+            "『作る』の受付時間を短く（0.1秒以下）するか、押した分をキューに入れて全部反映させる。『稼働！』のポップアップは機械ラベルと重ならない位置（ラベルの上か画面中央）に出す"
+          ],
+          "summary": "見た目・分かりやすさ・画面の安定はかなり良く、作る→売る→針金→機械の流れも画面だけで分かる。ただし10万本のクリアが遠すぎて目安の6〜10分に収まらず、段階3では10秒ごとの針金補充が作業になって楽しさを削っている。"
+        },
+        "steps": 120,
+        "clears_ms": [],
+        "runtime_errors": [],
+        "costUsd": 1.6926402,
+        "error": null
+      },
+      "volume": {
+        "pass": null,
+        "factor": 1,
+        "minMs": 360000,
+        "detail": "試遊AIはクリアしなかったため測れない（最低 6分）"
+      }
+    },
+    {
+      "round": 2,
+      "roundDir": "runs/paperclip/20261126-120221/round-2",
+      "score": 0.85,
+      "build": {
+        "ok": true,
+        "summary": "「作る」は0.15秒ごとに受け付け、早押しは3回分までためて全部クリップにするよう直しました。「稼働！」などのお知らせは、機械ラベルと重ならない床の中央に、背景付きで出します。\n針金を自動で買う「仕入れ係」（Mキー・段階2で解放）と10万本巻きを足し、1,000本巻きは段階2、1万本巻きは段階3から買えるようにしました。仕入れ係は相場が¥33以下のときだけ買うので、相場の高いときに自分で買うかどうかの判断が残ります。\nクリア目標を20万本にし、序盤の伸びを速め、設備に置き場の上限（14/9/4台）を付けました。この環境ではスクリプトの実行に許可が要ったため、シミュレーションもブラウザでの動作確認もできていません。クリア時間（試遊AIで約7分、最適に遊んで約6分）は手計算の見積もりで、上手な人の6分は割り込む恐れがあります。",
+        "costUsd": 2.4609850000000004
+      },
+      "gate": {
+        "pass": true,
+        "passed": 16,
+        "total": 16,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "52KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "52KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「まがりがね工房」 goal=ペーパークリップを累計 200,000本 出荷するとクリア / controls=画面下のボタンをクリック（キーボード：Space/Zで作る・Xで売る・C/V/B/Nで針金を買う・Mで仕入れ係・1〜7で設備を買う）"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 172256 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "入力ありと入力なしで画面が変わる"
+          },
+          {
+            "id": "no_layout_shift",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作中のレイアウトシフト 合計0・1回（上限 0.05・3回）"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.78,
+        "review": {
+          "scores": {
+            "clarity": 5,
+            "controls": 4,
+            "goal": 4,
+            "fairness": 4,
+            "fun": 3,
+            "brief_fit": 4,
+            "visuals": 5,
+            "stability": 5,
+            "depth": 3
+          },
+          "reached": "won",
+          "bugs": [
+            {
+              "what": "5:08で全設備が上限になり、7:09のクリアまで約2分、買える物も判断もなく待つだけになった。お金は¥289,387まで使い道なく貯まった",
+              "evidence": "play/101.png"
+            },
+            {
+              "what": "ボタン文言が省略記号で切れて読めない（『3：自動ライン ×0/…』『次の段階：にぎや…』『在庫を自動で売ってくれる（1人で…』）",
+              "evidence": "play/015.png"
+            },
+            {
+              "what": "Spaceを3秒押し続けてもクリップが1本しかできず、押しっぱなしで連続生産できない",
+              "evidence": "play/003.png"
+            },
+            {
+              "what": "ペンチ（5）と手作りが序盤の10本以降ほぼ意味を持たず、一度も買う理由がなかった",
+              "evidence": "play/089.png"
+            }
+          ],
+          "fixes": [
+            "最終段階（大工場）に、余ったお金の使い道と判断を足す。例：自動ラインの上限を段階的に増やす、ワイヤー工場を建てて自前で針金を作る、注文が来たら手作業の特急便で応える、など。5分すぎから2分間ただ待つだけの時間をなくす",
+            "設備カードの説明文が1行に収まるよう、文言を短くするかカードを広げる。上限台数や販売員の能力が省略されず読めるようにする",
+            "手作業とペンチを終盤まで意味のあるものにする（例：手作りは生産の数%を足す、クリックでしばらく機械を加速する）。あわせてキーの押しっぱなしで連続生産できるようにする"
+          ],
+          "summary": "絵とアニメーションが豊かで、作る→売る→針金→機械の流れが画面だけで分かり、レイアウトシフトもゼロと完成度は高い。ただし設備が5分で上限に達し、残り2分が放置だけになるので、最終段階の中身が足りない。"
+        },
+        "steps": 110,
+        "clears_ms": [
+          439000
+        ],
+        "runtime_errors": [],
+        "costUsd": 1.9743649999999997,
+        "error": null
+      },
+      "volume": {
+        "pass": true,
+        "factor": 1,
+        "clearMs": 439000,
+        "minMs": 360000,
+        "detail": "試遊AIのクリアまで 7分19秒（最低 6分）"
+      }
+    }
+  ]
+}

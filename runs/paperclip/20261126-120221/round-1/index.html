@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=960, initial-scale=1">
+<title>まがりがね工房</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#15171c;overflow:hidden}
+body{font-family:"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Yu Gothic","Meiryo",sans-serif;color:#eef1f6;font-variant-numeric:tabular-nums;user-select:none;-webkit-user-select:none}
+#app{position:relative;width:960px;height:720px;margin:0 auto;overflow:hidden;background:#1d2027}
+.nw{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* header */
+#hdr{position:absolute;left:0;top:0;width:960px;height:56px;background:#262a33;border-bottom:2px solid #3a404d}
+.hc{position:absolute;top:0;height:54px;overflow:hidden}
+#h1{left:0;width:250px;padding-left:12px}
+#h2{left:250px;width:190px}
+#h3{left:440px;width:380px}
+#h4{left:820px;width:130px;text-align:right}
+#hTitle{position:absolute;top:3px;left:12px;width:236px;height:26px;font-size:20px;font-weight:800;line-height:26px;color:#fff}
+#hPhase{position:absolute;top:30px;left:12px;width:236px;height:20px;font-size:14px;line-height:20px;color:#ffd36b;font-weight:700}
+.lab{position:absolute;top:3px;left:0;height:14px;font-size:12px;line-height:14px;color:#9aa3b5}
+#hMoney{position:absolute;top:16px;left:0;width:186px;height:36px;font-size:30px;line-height:36px;font-weight:800;color:#7dff9a}
+#hGoal{position:absolute;top:3px;left:0;width:370px;height:18px;font-size:14px;line-height:18px;font-weight:700;color:#fff}
+#hBar{position:absolute;top:23px;left:0;width:370px;height:12px;background:#151820;border:1px solid #4a5160;border-radius:6px;overflow:hidden}
+#hFill{position:absolute;left:0;top:0;width:100%;height:100%;background:linear-gradient(90deg,#4fc3ff,#7dff9a);transform-origin:0 50%;transform:scaleX(0)}
+#hProg{position:absolute;top:37px;left:0;width:370px;height:16px;font-size:13px;line-height:16px;color:#cfd6e4}
+#hTime{position:absolute;top:16px;right:0;width:130px;height:36px;font-size:28px;line-height:36px;font-weight:800;color:#fff}
+#h4 .lab{left:auto;right:0}
+/* canvas */
+#cv{position:absolute;left:0;top:56px;width:960px;height:380px;display:block;cursor:pointer}
+/* panel */
+#panel{position:absolute;left:0;top:436px;width:960px;height:284px;background:#22262e;border-top:2px solid #3a404d}
+#colA{position:absolute;left:8px;top:8px;width:228px;height:268px}
+#colB{position:absolute;left:244px;top:8px;width:236px;height:268px}
+#colC{position:absolute;left:488px;top:8px;width:464px;height:268px}
+.btn{position:absolute;border:2px solid #4a5160;border-radius:9px;background:#2d323c;cursor:pointer;overflow:hidden;color:#eef1f6}
+.btn.ok{border-color:#59d17a;background:#244030;box-shadow:0 0 10px rgba(89,209,122,.45)}
+.btn.short{border-color:#7a5656;background:#2f2a2e}
+.btn.locked{border-color:#363a42;background:#1f2228;color:#7b8190}
+.btn.done{border-color:#4a6fa0;background:#232b38;color:#a9bbd6}
+.btn.flash{background:#4c8a5e}
+.ln{position:absolute;left:9px;right:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt{position:absolute;right:9px;white-space:nowrap;text-align:right}
+#bMake{left:0;top:0;width:228px;height:150px}
+#bSell{left:0;top:158px;width:228px;height:110px}
+#bMake .t1{top:8px;height:52px;font-size:46px;line-height:52px;font-weight:900;text-align:center;letter-spacing:6px}
+#bMake .t2{top:66px;height:22px;font-size:15px;line-height:22px;text-align:center;color:#d8f5df}
+#bMake .t3{top:92px;height:20px;font-size:13px;line-height:20px;text-align:center;color:#b8c2d2}
+#bMake .t4{top:116px;height:24px;font-size:16px;line-height:24px;text-align:center;font-weight:800;color:#ffd36b}
+#bSell .t1{top:6px;height:36px;font-size:30px;line-height:36px;font-weight:900;text-align:center;letter-spacing:4px}
+#bSell .t2{top:46px;height:22px;font-size:15px;line-height:22px;text-align:center}
+#bSell .t3{top:74px;height:22px;font-size:14px;line-height:22px;text-align:center;font-weight:700;color:#ffd36b}
+#wHead{position:absolute;left:0;top:0;width:236px;height:88px;border:2px solid #3a404d;border-radius:9px;background:#1b1e25}
+#wTitle{top:3px;height:18px;font-size:13px;line-height:18px;color:#9aa3b5}
+#wLeft{top:20px;height:30px;font-size:24px;line-height:30px;font-weight:800}
+#wPrice{top:50px;height:16px;font-size:13px;line-height:16px}
+#wUse{top:66px;height:16px;font-size:12px;line-height:16px;color:#b8c2d2}
+.wb{left:0;width:236px;height:40px}
+.wb .a{top:2px;left:9px;right:78px;height:20px;font-size:14px;line-height:20px;font-weight:800}
+.wb .b{top:21px;height:15px;font-size:12px;line-height:15px}
+.wb .c{top:2px;height:20px;font-size:15px;line-height:20px;font-weight:800}
+.sc{width:229px;height:62px}
+.sc .a{top:3px;height:20px;font-size:15px;line-height:20px;font-weight:800;right:70px}
+.sc .c{top:3px;height:20px;font-size:15px;line-height:20px;font-weight:800;color:#ffe9a6}
+.sc .b{top:23px;height:17px;font-size:12px;line-height:17px;color:#c6cedc}
+.sc .d{top:40px;height:17px;font-size:13px;line-height:17px;font-weight:800}
+.btn.ok .d{color:#8dff9f}
+.btn.short .d{color:#ff9d9d}
+.btn.locked .d{color:#8a90a0}
+.btn.locked .b,.btn.locked .c{color:#7b8190}
+/* overlays */
+.ov{position:absolute;left:0;top:0;width:960px;height:720px;background:rgba(12,14,20,.86);visibility:hidden;opacity:0}
+.ov.show{visibility:visible;opacity:1}
+.box{position:absolute;left:110px;top:70px;width:740px;height:580px;border:3px solid #ffd36b;border-radius:18px;background:#20242d;text-align:center}
+.ov h1{margin:0;position:absolute;left:0;top:26px;width:100%;font-size:54px;line-height:66px;color:#ffd36b;letter-spacing:4px}
+.ov .sub{position:absolute;left:0;top:96px;width:100%;font-size:19px;line-height:26px;color:#fff}
+.ov .goal{position:absolute;left:40px;top:134px;width:660px;font-size:22px;line-height:32px;font-weight:800;color:#7dff9a;border:2px solid #3f7a52;border-radius:10px;background:#1c2d23}
+.ov ol{position:absolute;left:70px;top:186px;width:610px;margin:0;padding:0 0 0 26px;text-align:left;font-size:18px;line-height:31px}
+.ov .note{position:absolute;left:0;top:446px;width:100%;font-size:16px;line-height:24px;color:#b8c2d2}
+.ov .go{position:absolute;left:0;top:496px;width:100%;font-size:28px;line-height:40px;font-weight:900;color:#fff;animation:blink 1.1s steps(2,start) infinite}
+@keyframes blink{50%{opacity:.35}}
+#winTime{position:absolute;left:0;top:190px;width:100%;font-size:64px;line-height:80px;font-weight:900;color:#fff}
+#winBest{position:absolute;left:0;top:276px;width:100%;font-size:20px;line-height:28px;color:#ffd36b}
+#winStats{position:absolute;left:0;top:320px;width:100%;font-size:18px;line-height:30px;color:#cfd6e4}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <div class="hc" id="h1"><div id="hTitle" class="nw">まがりがね工房</div><div id="hPhase" class="nw">段階 1/4：手作りの作業台</div></div>
+    <div class="hc" id="h2"><div class="lab">お金</div><div id="hMoney" class="nw">¥0</div></div>
+    <div class="hc" id="h3"><div id="hGoal" class="nw">目標：クリップを 100,000本 出荷するとクリア</div><div id="hBar"><div id="hFill"></div></div><div id="hProg" class="nw">0 / 100,000本</div></div>
+    <div class="hc" id="h4"><div class="lab">経過時間</div><div id="hTime" class="nw">0:00</div></div>
+  </div>
+  <canvas id="cv" width="960" height="380"></canvas>
+  <div id="panel">
+    <div id="colA">
+      <div class="btn ok" id="bMake" role="button">
+        <div class="ln t1">作る</div>
+        <div class="ln t2">クリップを1本 曲げる</div>
+        <div class="ln t3">Space / Z ・ 針金を1本使う</div>
+        <div class="ln t4">&nbsp;</div>
+      </div>
+      <div class="btn" id="bSell" role="button">
+        <div class="ln t1">売る（X）</div>
+        <div class="ln t2">在庫 0本 → ¥0</div>
+        <div class="ln t3">&nbsp;</div>
+      </div>
+    </div>
+    <div id="colB">
+      <div id="wHead">
+        <div class="ln" id="wTitle">針金（クリップの材料）</div>
+        <div class="ln" id="wLeft">残り 100本</div>
+        <div class="ln" id="wPrice">相場 ¥50 / 100本</div>
+        <div class="ln" id="wUse">機械の消費 毎秒 0本</div>
+      </div>
+    </div>
+    <div id="colC"></div>
+  </div>
+  <div class="ov show" id="ovTitle">
+    <div class="box">
+      <h1>まがりがね工房</h1>
+      <div class="sub">小さな町工場でペーパークリップを作って売り、大工場に育てよう！</div>
+      <div class="goal">目標：クリップを 100,000本 出荷するとクリア</div>
+      <ol>
+        <li>「作る」ボタン（Space / Z）でクリップが1本できる（針金を1本使う）</li>
+        <li>「売る」ボタン（X）で在庫をお金に変える</li>
+        <li>お金で針金を買い足す（C）。<b>針金が切れると生産が止まる！</b></li>
+        <li>曲げ機・プレス機などの設備（1〜7キー）を買うと自動で作る</li>
+        <li>出荷数が増えると新しい段階へ。設備と仕組みが増えていく</li>
+        <li>針金の相場は上下する。安いときに買いだめしよう</li>
+      </ol>
+      <div class="note">マウスで画面下のボタンをクリックしても遊べます。負けはありません。</div>
+      <div class="go">▶ Space / Enter / クリック でスタート</div>
+    </div>
+  </div>
+  <div class="ov" id="ovWin">
+    <div class="box">
+      <h1>クリア！</h1>
+      <div class="sub">クリップを 100,000本 出荷して、町いちばんの大工場になった！</div>
+      <div class="goal">クリアまでにかかった時間</div>
+      <div id="winTime">0:00</div>
+      <div id="winBest">&nbsp;</div>
+      <div id="winStats">&nbsp;</div>
+      <div class="go">▶ Space / Enter でもう一度あそぶ</div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+'use strict';
+// ===== 定数表（バランスはここだけで調整） =====
+const CFG = {
+  goal: 100000,
+  phaseAt: [0, 10, 1500, 15000],
+  phaseName: ['手作りの作業台', '小さな町工場', 'にぎやかな工場', '大工場'],
+  phaseUnlock: ['作る・売る・針金', '曲げ機・販売員・ペンチ・品質・整備', 'プレス機・針金1,000本巻き・強化Lv2', '自動ライン・針金10,000本/50,000本・強化Lv3'],
+  startWire: 100,
+  clipPrice: 1,
+  wireBase: 50,           // 100本あたりの基準価格
+  makeCooldown: 250,      // ms（クリック・キー共通：1秒に4回まで）
+  actCooldown: 120,
+  rescue: 20,
+  packs: [
+    {n: 100,   disc: 1.00, phase: 0, key: 'C'},
+    {n: 1000,  disc: 0.90, phase: 2, key: 'V'},
+    {n: 10000, disc: 0.80, phase: 3, key: 'B'},
+    {n: 50000, disc: 0.75, phase: 3, key: 'N'},
+  ],
+  machines: {
+    bender: {name: '曲げ機',     rate: 1,  cost: 10,    grow: 1.20, phase: 1},
+    press:  {name: 'プレス機',   rate: 10, cost: 500,   grow: 1.22, phase: 2},
+    line:   {name: '自動ライン', rate: 80, cost: 15000, grow: 1.28, phase: 3},
+  },
+  sales:   {cost: 100, phase: 1, interval: 0.5},
+  hand:    {per: [1, 2, 3, 5],        cost: [30, 600, 6000],     phase: [1, 2, 3]},
+  quality: {mult: [1, 1.5, 2.2, 3.2], cost: [150, 3000, 30000],  phase: [1, 2, 3]},
+  tune:    {mult: [1, 1.5, 2.25, 3.4],cost: [300, 4000, 40000],  phase: [1, 2, 3]},
+};
+const SHOP = ['bender', 'press', 'line', 'sales', 'hand', 'quality', 'tune'];
+const CLIPCOL = ['#b4bec8', '#e2ecf5', '#ffd54a', '#6ff2ff'];
+
+window.__game = {
+  state: 'title', score: 0, title: 'まがりがね工房',
+  goal: 'ペーパークリップを累計 100,000本 出荷するとクリア',
+  controls: '画面下のボタンをクリック（キーボード：Space/Zで作る・Xで売る・C/V/B/Nで針金を買う・1〜7で設備を買う）',
+};
+
+let G, V;
+function newGame(state){
+  G = {state: state, t: 0, money: 0, wire: CFG.startWire, stock: 0, shipped: 0, made: 0, phase: 0,
+       m: {bender: 0, press: 0, line: 0}, lv: {hand: 0, quality: 0, tune: 0}, sales: false, salesT: 0,
+       starved: false, endTime: 0, clicks: 0};
+  V = {sprites: [], floats: [], boxes: [], makeAnim: 0, truckOff: 0, truckMode: 0, pendingCash: 0, pendingN: 0,
+       mAnim: 0, beltX: 0, banner: {t: 0, ph: 0}, crateBump: 0, emit: {bender: 0, press: 0, line: 0},
+       spoolPop: 0, wonAt: 0, anim: 0};
+}
+newGame('title');
+
+// ===== 計算 =====
+const fmt = n => Math.floor(n).toLocaleString('en-US');
+const fmtR = r => r < 100 ? String(Math.round(r * 10) / 10) : fmt(r);
+const fmtT = s => { s = Math.floor(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const price = () => CFG.clipPrice * CFG.quality.mult[G.lv.quality];
+const tuneM = () => CFG.tune.mult[G.lv.tune];
+function mRate(){ let r = 0; for (const k in CFG.machines) r += G.m[k] * CFG.machines[k].rate; return r * tuneM(); }
+function wirePrice(){ return Math.round(CFG.wireBase * (1 + 0.3 * Math.sin(G.t / 11) + 0.12 * Math.sin(G.t / 3.3 + 1))); }
+function packCost(i){ const p = CFG.packs[i]; return Math.floor(wirePrice() * p.n / 100 * p.disc); }
+const cash = () => Math.floor(G.money);
+function rescueMode(){ return G.wire < 1 && G.stock < 1 && cash() < packCost(0); }
+function phaseFor(s){ let p = 0; for (let i = 0; i < CFG.phaseAt.length; i++) if (s >= CFG.phaseAt[i]) p = i; return p; }
+
+function itemInfo(k){
+  const o = {k: k, max: false, locked: false, lockMsg: '', cost: 0, title: '', sub: ''};
+  const ph = n => '出荷 ' + fmt(CFG.phaseAt[n]) + '本で解放';
+  if (CFG.machines[k]){
+    const it = CFG.machines[k], n = G.m[k];
+    o.cost = Math.floor(it.cost * Math.pow(it.grow, n));
+    o.title = it.name + ' ×' + n + '台';
+    o.sub = '1台で毎秒' + fmtR(it.rate * tuneM()) + '本 自動で作る';
+    if (G.phase < it.phase){ o.locked = true; o.lockMsg = ph(it.phase); }
+  } else if (k === 'sales'){
+    o.cost = CFG.sales.cost; o.title = '販売員';
+    o.sub = '在庫を自動で売ってくれる（1人で十分）';
+    if (G.sales){ o.max = true; o.title = '販売員（雇用中）'; }
+    if (G.phase < CFG.sales.phase){ o.locked = true; o.lockMsg = ph(CFG.sales.phase); }
+  } else {
+    const d = CFG[k], lv = G.lv[k];
+    const names = {hand: 'ペンチ', quality: '品質アップ', tune: '機械の整備'};
+    o.title = names[k] + ' Lv' + lv;
+    if (lv >= d.cost.length){ o.max = true; }
+    else {
+      o.cost = d.cost[lv];
+      if (G.phase < d.phase[lv]){ o.locked = true; o.lockMsg = ph(d.phase[lv]); }
+    }
+    if (k === 'hand') o.sub = o.max ? '1回で5本作る（最大）' : '1回で' + d.per[lv + 1] + '本作る（針金も' + d.per[lv + 1] + '本使う）';
+    if (k === 'quality') o.sub = o.max ? '売値 1本 ¥3.2（最大）' : '売値 1本 ¥' + d.mult[lv] + ' → ¥' + d.mult[lv + 1];
+    if (k === 'tune') o.sub = o.max ? '機械の速さ ×3.4（最大）' : '全部の機械の速さ ×' + d.mult[lv] + ' → ×' + d.mult[lv + 1];
+  }
+  return o;
+}
+
+// ===== 行動 =====
+const lastAct = {};
+function gate(name, ms){ const now = performance.now(); if (now - (lastAct[name] || -1e9) < ms) return false; lastAct[name] = now; return true; }
+function flash(el){ if (el) el._fl = performance.now() + 130; }
+function float(x, y, s, col, size){ V.floats.push({x: x, y: y, s: s, col: col || '#fff', t: 0, life: 1.3, size: size || 18}); if (V.floats.length > 40) V.floats.shift(); }
+
+function doMake(){
+  if (G.state !== 'playing') return;
+  if (!gate('make', CFG.makeCooldown)) return;
+  const per = CFG.hand.per[G.lv.hand];
+  const n = Math.min(per, Math.floor(G.wire));
+  if (n < 1){ float(100, 150, '針金がない！', '#ff8a80', 18); return; }
+  G.wire -= n; G.stock += n; G.made += n; G.clicks++;
+  V.makeAnim = 1;
+  V.sprites.push({mode: 2, t: 0, x0: 150, y0: 244, x1: 196, y1: 292, x: 150, y: 244, a: 0});
+  float(128, 222, '+' + n + '本', '#ffffff', 20);
+  flash(E.make);
+}
+function doSell(manual){
+  if (G.state !== 'playing') return;
+  if (manual && !gate('sell', CFG.makeCooldown)) return;
+  const n = Math.floor(G.stock);
+  if (n < 1){ if (manual) float(800, 230, '在庫がない', '#ff8a80', 16); return; }
+  const c = n * price();
+  G.stock -= n; G.shipped += n; G.money += c;
+  V.pendingCash += c; V.pendingN += n;
+  V.boxes.push({t: 0});
+  if (manual) flash(E.sell);
+}
+function buyWire(i){
+  if (G.state !== 'playing') return;
+  if (!gate('w' + i, CFG.actCooldown)) return;
+  if (i === 0 && rescueMode()){
+    G.wire += CFG.rescue; V.spoolPop = 1;
+    float(100, 150, '+' + CFG.rescue + '本（くず針金）', '#9fffb0', 16); flash(E.wire[0]); return;
+  }
+  const p = CFG.packs[i];
+  if (G.phase < p.phase){ float(480, 120, 'まだ解放されていない', '#ff8a80', 18); return; }
+  const c = packCost(i);
+  if (cash() < c){ float(480, 120, 'お金が足りない（あと¥' + fmt(c - cash()) + '）', '#ff8a80', 18); return; }
+  G.money -= c; G.wire += p.n; V.spoolPop = 1;
+  float(100, 150, '+' + fmt(p.n) + '本', '#9fffb0', 18);
+  flash(E.wire[i]);
+}
+function buyItem(k){
+  if (G.state !== 'playing' || !k) return;
+  if (!gate('i' + k, CFG.actCooldown)) return;
+  const o = itemInfo(k);
+  if (o.max){ float(480, 120, 'もう最大です', '#ffd36b', 18); return; }
+  if (o.locked){ float(480, 120, o.lockMsg, '#ff8a80', 18); return; }
+  if (cash() < o.cost){ float(480, 120, 'お金が足りない（あと¥' + fmt(o.cost - cash()) + '）', '#ff8a80', 18); return; }
+  G.money -= o.cost;
+  if (CFG.machines[k]){ G.m[k]++; const p = slotPos(k, Math.min(G.m[k], SLOTS[k]) - 1); float(p.x + p.w / 2, p.y - 6, CFG.machines[k].name + ' 稼働！', '#9fffb0', 16); }
+  else if (k === 'sales'){ G.sales = true; float(800, 200, '販売員が来た！', '#9fffb0', 18); }
+  else { G.lv[k]++; float(480, 120, o.title.replace(/Lv\d+/, 'Lv' + G.lv[k]) + '！', '#9fffb0', 22); }
+  flash(E.shop[SHOP.indexOf(k)]);
+}
+function start(){
+  newGame('playing');
+  for (const k in lastAct) delete lastAct[k];
+  E.ovTitle.classList.remove('show'); E.ovWin.classList.remove('show');
+  window.__game.state = 'playing'; window.__game.score = 0;
+}
+function win(){
+  G.state = 'won'; G.endTime = G.t; V.wonAt = performance.now();
+  let best = null;
+  try { best = parseFloat(localStorage.getItem('magarigane_best')); if (!(best > 0) || G.t < best){ localStorage.setItem('magarigane_best', String(G.t)); best = (best > 0 && best < G.t) ? best : null; } } catch (e) { best = null; }
+  E.winTime.textContent = fmtT(G.t);
+  E.winBest.textContent = best ? '自己ベスト ' + fmtT(best) : '自己ベスト更新！';
+  E.winStats.textContent = '曲げ機 ' + G.m.bender + '台 ・ プレス機 ' + G.m.press + '台 ・ 自動ライン ' + G.m.line + '台 ・ 手で作った回数 ' + G.clicks + '回';
+  E.ovWin.classList.add('show');
+}
+
+// ===== シミュレーション =====
+function step(h){
+  if (G.state !== 'playing') return;
+  G.t += h;
+  const r = mRate();
+  if (r > 0){
+    const need = r * h, got = Math.min(need, G.wire);
+    G.wire -= got; G.stock += got; G.made += got;
+    G.starved = got < need * 0.999;
+  } else G.starved = false;
+  if (G.wire < 1e-9) G.wire = 0;
+  if (G.sales){ G.salesT += h; if (G.salesT >= CFG.sales.interval){ G.salesT = 0; doSell(false); } }
+  const ph = phaseFor(G.shipped);
+  if (ph > G.phase){ G.phase = ph; V.banner = {t: 5, ph: ph}; }
+  if (G.shipped >= CFG.goal){ win(); }
+}
+
+// ===== DOM =====
+const $ = id => document.getElementById(id);
+const E = {make: $('bMake'), sell: $('bSell'), ovTitle: $('ovTitle'), ovWin: $('ovWin'), winTime: $('winTime'), winBest: $('winBest'), winStats: $('winStats'), wire: [], shop: []};
+(function build(){
+  const colB = $('colB'), colC = $('colC');
+  CFG.packs.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'btn wb'; d.style.top = (92 + i * 44) + 'px'; d.setAttribute('role', 'button');
+    d.innerHTML = '<div class="ln a"></div><div class="rt c"></div><div class="ln b"></div>';
+    d.addEventListener('click', () => buyWire(i));
+    colB.appendChild(d); E.wire.push(d);
+  });
+  for (let i = 0; i < 8; i++){
+    const d = document.createElement('div');
+    d.className = 'btn sc'; d.setAttribute('role', 'button');
+    d.style.left = (i % 2 ? 235 : 0) + 'px'; d.style.top = (Math.floor(i / 2) * 68) + 'px';
+    d.innerHTML = '<div class="ln a"></div><div class="rt c"></div><div class="ln b"></div><div class="ln d"></div>';
+    if (i < 7) d.addEventListener('click', () => buyItem(SHOP[i]));
+    colC.appendChild(d); E.shop.push(d);
+  }
+  E.make.addEventListener('click', doMake);
+  E.sell.addEventListener('click', () => doSell(true));
+  E.ovTitle.addEventListener('click', () => { if (G.state === 'title') start(); });
+})();
+const q = (el, sel) => el._q ? el._q[sel] || (el._q[sel] = el.querySelector(sel)) : ((el._q = {})[sel] = el.querySelector(sel));
+function setT(el, s){ if (el._t !== s){ el._t = s; el.textContent = s; } }
+function setC(el, base, st){ const c = base + ' ' + st + ((el._fl || 0) > performance.now() ? ' flash' : ''); if (el._c !== c){ el._c = c; el.className = c; } }
+const H = {phase: $('hPhase'), money: $('hMoney'), fill: $('hFill'), prog: $('hProg'), time: $('hTime'),
+           wLeft: $('wLeft'), wPrice: $('wPrice'), wUse: $('wUse')};
+
+function ui(){
+  const r = mRate();
+  setT(H.phase, '段階 ' + (G.phase + 1) + '/4：' + CFG.phaseName[G.phase]);
+  setT(H.money, '¥' + fmt(G.money));
+  const pr = Math.min(1, G.shipped / CFG.goal);
+  const sx = 'scaleX(' + pr.toFixed(4) + ')'; if (H.fill._s !== sx){ H.fill._s = sx; H.fill.style.transform = sx; }
+  setT(H.prog, '出荷 ' + fmt(G.shipped) + ' / ' + fmt(CFG.goal) + '本（' + Math.floor(pr * 100) + '%）');
+  setT(H.time, fmtT(G.state === 'won' ? G.endTime : G.t));
+  // make
+  const per = CFG.hand.per[G.lv.hand];
+  setT(q(E.make, '.t2'), 'クリップを' + per + '本 曲げる');
+  setT(q(E.make, '.t3'), 'Space / Z ・ 針金を' + per + '本使う');
+  const noWire = G.wire < 1;
+  setT(q(E.make, '.t4'), noWire ? '針金がない！ 針金を買おう' : '手で作る：1回 ' + per + '本');
+  setC(E.make, 'btn', noWire ? 'short' : 'ok');
+  // sell
+  const sn = Math.floor(G.stock);
+  setT(q(E.sell, '.t2'), '在庫 ' + fmt(sn) + '本 → ¥' + fmt(sn * price()));
+  setT(q(E.sell, '.t3'), G.sales ? '販売員が自動で売っています' : (sn > 0 ? '売れる！ 1本 ¥' + price() : '売るクリップがない'));
+  setC(E.sell, 'btn', (!G.sales && sn > 0) ? 'ok' : '');
+  // wire
+  setT(H.wLeft, '残り ' + fmt(G.wire) + '本');
+  const wp = wirePrice();
+  const tag = wp <= 40 ? '【安い！】' : wp >= 60 ? '【高い】' : '【ふつう】';
+  setT(H.wPrice, '相場 ¥' + wp + ' / 100本 ' + tag);
+  H.wPrice.style.color = wp <= 40 ? '#8dff9f' : wp >= 60 ? '#ff9d9d' : '#eef1f6';
+  setT(H.wUse, r > 0 ? '機械の消費 毎秒 ' + fmtR(r) + '本 → あと ' + (G.wire > 0 ? Math.ceil(G.wire / r) : 0) + '秒' : '機械の消費 毎秒 0本');
+  const resc = rescueMode();
+  CFG.packs.forEach((p, i) => {
+    const el = E.wire[i];
+    if (i === 0 && resc){
+      setT(q(el, '.a'), 'C：くず針金を拾う'); setT(q(el, '.c'), '無料');
+      setT(q(el, '.b'), 'お金がないときの救済 +' + CFG.rescue + '本'); setC(el, 'btn wb', 'ok'); return;
+    }
+    setT(q(el, '.a'), p.key + '：' + fmt(p.n) + '本' + (p.disc < 1 ? ' ' + Math.round((1 - p.disc) * 100) + '%引' : ''));
+    if (G.phase < p.phase){ setT(q(el, '.c'), ''); setT(q(el, '.b'), '出荷 ' + fmt(CFG.phaseAt[p.phase]) + '本で解放'); setC(el, 'btn wb', 'locked'); return; }
+    const c = packCost(i);
+    setT(q(el, '.c'), '¥' + fmt(c));
+    if (cash() >= c){ setT(q(el, '.b'), '買える！'); setC(el, 'btn wb', 'ok'); }
+    else { setT(q(el, '.b'), 'お金が足りない（あと¥' + fmt(c - cash()) + '）'); setC(el, 'btn wb', 'short'); }
+  });
+  // shop
+  SHOP.forEach((k, i) => {
+    const el = E.shop[i], o = itemInfo(k);
+    setT(q(el, '.a'), (i + 1) + '：' + o.title);
+    setT(q(el, '.b'), o.sub);
+    if (o.max){ setT(q(el, '.c'), ''); setT(q(el, '.d'), k === 'sales' ? '雇用中（自動で販売）' : '最大レベル'); setC(el, 'btn sc', 'done'); return; }
+    setT(q(el, '.c'), '¥' + fmt(o.cost));
+    if (o.locked){ setT(q(el, '.d'), o.lockMsg); setC(el, 'btn sc', 'locked'); }
+    else if (cash() >= o.cost){ setT(q(el, '.d'), '買える！'); setC(el, 'btn sc', 'ok'); }
+    else { setT(q(el, '.d'), 'お金が足りない（あと¥' + fmt(o.cost - cash()) + '）'); setC(el, 'btn sc', 'short'); }
+  });
+  const inf = E.shop[7];
+  if (G.phase < 3){
+    const nx = G.phase + 1;
+    setT(q(inf, '.a'), '次の段階：' + CFG.phaseName[nx]);
+    setT(q(inf, '.c'), '');
+    setT(q(inf, '.b'), '解放：' + CFG.phaseUnlock[nx]);
+    setT(q(inf, '.d'), '出荷 ' + fmt(CFG.phaseAt[nx]) + '本で解放（あと' + fmt(CFG.phaseAt[nx] - G.shipped) + '本）');
+  } else {
+    setT(q(inf, '.a'), '最終段階：大工場');
+    setT(q(inf, '.c'), '');
+    setT(q(inf, '.b'), '出荷 ' + fmt(CFG.goal) + '本でクリア');
+    setT(q(inf, '.d'), 'あと ' + fmt(Math.max(0, CFG.goal - G.shipped)) + '本');
+  }
+  setC(inf, 'btn sc', 'done');
+  window.__game.state = G.state;
+  window.__game.score = Math.floor(G.shipped);
+}
+
+// ===== 入力 =====
+document.addEventListener('keydown', e => {
+  const c = e.code;
+  if (c === 'Space' || c === 'Enter' || c.indexOf('Arrow') === 0) e.preventDefault();
+  if (G.state === 'title'){ if ((c === 'Space' || c === 'Enter') && !e.repeat) start(); return; }
+  if (G.state === 'won' || G.state === 'lost'){
+    if ((c === 'Space' || c === 'Enter') && !e.repeat && performance.now() - V.wonAt > 800) start();
+    return;
+  }
+  if (c === 'Space' || c === 'KeyZ' || c === 'Enter') doMake();
+  else if (c === 'KeyX' || c === 'KeyS') doSell(true);
+  else if (c === 'KeyC') buyWire(0);
+  else if (c === 'KeyV') buyWire(1);
+  else if (c === 'KeyB') buyWire(2);
+  else if (c === 'KeyN') buyWire(3);
+  else { const m = /^(Digit|Numpad)([1-7])$/.exec(c); if (m) buyItem(SHOP[+m[2] - 1]); }
+});
+const cv = $('cv'), ctx = cv.getContext('2d');
+cv.addEventListener('click', e => {
+  if (G.state === 'title'){ start(); return; }
+  if (G.state !== 'playing') return;
+  const b = cv.getBoundingClientRect();
+  const x = (e.clientX - b.left) * 960 / b.width, y = (e.clientY - b.top) * 380 / b.height;
+  if (x < 200 && y > 150) doMake();
+  else if (x > 755 && y > 200) doSell(true);
+});
+
+// ===== 描画 =====
+const FONT = '"Noto Sans JP","Noto Sans CJK JP","Hiragino Sans","Yu Gothic","Meiryo",sans-serif';
+const SLOTS = {bender: 14, press: 9, line: 4};
+function slotPos(k, i){
+  if (k === 'bender') return {x: 262 + i * 35, y: 240, w: 28, h: 44};
+  if (k === 'press') return {x: 262 + i * 54, y: 162, w: 46, h: 60};
+  return {x: 262 + i * 122, y: 82, w: 114, h: 64};
+}
+function rr(x, y, w, h, r){ ctx.beginPath(); ctx.moveTo(x + r, y); ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r); ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h); ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r); ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.closePath(); }
+function clipPath(){
+  ctx.beginPath();
+  ctx.moveTo(-5, 2.5); ctx.lineTo(5, 2.5); ctx.arc(5, 0, 2.5, Math.PI / 2, -Math.PI / 2, true);
+  ctx.lineTo(-9, -2.5); ctx.arc(-9, 1, 3.5, -Math.PI / 2, Math.PI / 2, true);
+  ctx.lineTo(9, 4.5); ctx.arc(9, 0, 4.5, Math.PI / 2, -Math.PI / 2, true); ctx.lineTo(-6, -4.5);
+}
+function drawClip(x, y, s, a, col, prog){
+  ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.scale(s, s);
+  clipPath(); ctx.lineWidth = 1.5; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  if (prog !== undefined && prog < 1) ctx.setLineDash([95 * prog, 300]);
+  ctx.strokeStyle = 'rgba(0,0,0,.45)'; ctx.translate(0.6, 0.8); ctx.stroke(); ctx.translate(-0.6, -0.8);
+  ctx.strokeStyle = col; ctx.stroke();
+  ctx.restore();
+}
+function text(s, x, y, size, col, align, bold, stroke, mw){
+  ctx.font = (bold ? '800 ' : '600 ') + size + 'px ' + FONT;
+  ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle';
+  mw = mw || 940;
+  if (stroke){ ctx.lineWidth = 4; ctx.strokeStyle = stroke; ctx.lineJoin = 'round'; ctx.strokeText(s, x, y, mw); }
+  ctx.fillStyle = col; ctx.fillText(s, x, y, mw);
+}
+
+function drawBG(){
+  const ph = G.phase, W = 960;
+  if (ph === 0){
+    ctx.fillStyle = '#6b4a33'; ctx.fillRect(0, 0, W, 305);
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 2;
+    for (let x = 0; x < W; x += 40){ ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, 305); ctx.stroke(); }
+    ctx.fillStyle = 'rgba(255,255,255,.05)'; for (let x = 20; x < W; x += 80) ctx.fillRect(x, 0, 6, 305);
+    // window
+    ctx.fillStyle = '#4a3020'; ctx.fillRect(552, 32, 136, 96);
+    const sky = ctx.createLinearGradient(0, 40, 0, 120); sky.addColorStop(0, '#7cc8ff'); sky.addColorStop(1, '#cdeeff');
+    ctx.fillStyle = sky; ctx.fillRect(560, 40, 120, 80);
+    ctx.fillStyle = '#ffe07a'; ctx.beginPath(); ctx.arc(650, 66, 14, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#4a3020'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(620, 40); ctx.lineTo(620, 120); ctx.moveTo(560, 80); ctx.lineTo(680, 80); ctx.stroke();
+  } else if (ph === 1){
+    ctx.fillStyle = '#9c9a86'; ctx.fillRect(0, 0, W, 305);
+    ctx.fillStyle = '#6a5c4b'; ctx.fillRect(0, 200, W, 105);
+    ctx.fillStyle = '#54493b'; ctx.fillRect(0, 196, W, 6);
+    for (let i = 0; i < 2; i++){
+      const wx = 300 + i * 260;
+      ctx.fillStyle = '#5a5248'; ctx.fillRect(wx - 6, 22, 132, 70);
+      ctx.fillStyle = '#a9dcff'; ctx.fillRect(wx, 28, 120, 58);
+      ctx.strokeStyle = '#5a5248'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(wx + 60, 28); ctx.lineTo(wx + 60, 86); ctx.stroke();
+    }
+    // clock
+    ctx.fillStyle = '#fff'; ctx.strokeStyle = '#333'; ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(880, 70, 26, 0, 7); ctx.fill(); ctx.stroke();
+    const a1 = G.t * 0.5, a2 = G.t * 0.04;
+    ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(880, 70); ctx.lineTo(880 + Math.sin(a1) * 20, 70 - Math.cos(a1) * 20); ctx.moveTo(880, 70); ctx.lineTo(880 + Math.sin(a2) * 13, 70 - Math.cos(a2) * 13); ctx.stroke();
+  } else if (ph === 2){
+    ctx.fillStyle = '#8a4b3a'; ctx.fillRect(0, 0, W, 305);
+    ctx.strokeStyle = 'rgba(40,20,15,.45)'; ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    for (let y = 0, r = 0; y < 305; y += 15, r++){
+      ctx.moveTo(0, y); ctx.lineTo(W, y);
+      for (let x = (r % 2) * 22; x < W; x += 44){ ctx.moveTo(x, y); ctx.lineTo(x, y + 15); }
+    }
+    ctx.stroke();
+    ctx.fillStyle = '#3c3f46'; ctx.fillRect(250, 10, 500, 52);
+    ctx.fillStyle = '#bfe6ff'; for (let i = 0; i < 5; i++) ctx.fillRect(256 + i * 99, 15, 92, 42);
+    for (let i = 0; i < 3; i++){
+      const lx = 330 + i * 170, sw = Math.sin(V.anim * 1.3 + i) * 4;
+      ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(lx, 62); ctx.lineTo(lx + sw, 74); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,240,170,.12)'; ctx.beginPath(); ctx.moveTo(lx + sw - 12, 80); ctx.lineTo(lx + sw + 12, 80); ctx.lineTo(lx + sw + 60, 290); ctx.lineTo(lx + sw - 60, 290); ctx.fill();
+      ctx.fillStyle = '#333'; ctx.beginPath(); ctx.moveTo(lx + sw - 14, 82); ctx.lineTo(lx + sw + 14, 82); ctx.lineTo(lx + sw + 6, 72); ctx.lineTo(lx + sw - 6, 72); ctx.fill();
+      ctx.fillStyle = '#fff3b0'; ctx.beginPath(); ctx.arc(lx + sw, 83, 4, 0, 7); ctx.fill();
+    }
+  } else {
+    const g = ctx.createLinearGradient(0, 0, 0, 305); g.addColorStop(0, '#2f3b4a'); g.addColorStop(1, '#46566a');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, 305);
+    ctx.fillStyle = 'rgba(255,255,255,.07)'; for (let x = 0; x < W; x += 60) ctx.fillRect(x, 0, 4, 305);
+    ctx.fillStyle = '#9fd8ff'; for (let i = 0; i < 8; i++) ctx.fillRect(250 + i * 88, 0, 70, 22);
+    ctx.fillStyle = '#7a8796'; ctx.fillRect(240, 52, 720, 6);
+    // crane
+    const cx = 500 + Math.sin(V.anim * 0.35) * 220;
+    ctx.fillStyle = '#e8b62a'; ctx.fillRect(cx - 26, 44, 52, 16);
+    ctx.strokeStyle = '#222'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, 60); ctx.lineTo(cx, 70); ctx.stroke();
+    ctx.fillStyle = '#c98a4a'; ctx.beginPath(); ctx.arc(cx, 74, 7, 0, 7); ctx.fill();
+    // stripes
+    for (let x = 0; x < W; x += 24){ ctx.fillStyle = (x / 24) % 2 ? '#222' : '#e8c02a'; ctx.fillRect(x, 300, 24, 5); }
+  }
+  // floor
+  ctx.fillStyle = ph === 0 ? '#4a3626' : '#4d535c'; ctx.fillRect(0, 305, W, 75);
+  ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); for (let x = 0; x < W; x += ph === 0 ? 60 : 120){ ctx.moveTo(x, 305); ctx.lineTo(x - 30, 380); } ctx.stroke();
+}
+
+function drawWorker(){
+  // spool on wall bracket
+  const fill = Math.min(1, Math.log10(G.wire + 1) / 4.5);
+  const pop = V.spoolPop > 0 ? Math.sin(V.spoolPop * Math.PI) * 4 : 0;
+  const r = 7 + 22 * fill + pop;
+  ctx.fillStyle = '#555'; ctx.fillRect(36, 120, 8, 14);
+  ctx.fillStyle = '#8b5a2b'; ctx.beginPath(); ctx.arc(40, 160, 32, 0, 7); ctx.fill();
+  ctx.fillStyle = '#6a4220'; ctx.beginPath(); ctx.arc(40, 160, 30, 0, 7); ctx.fill();
+  if (G.wire >= 1){
+    ctx.fillStyle = '#c4ccd4'; ctx.beginPath(); ctx.arc(40, 160, r, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#8f9aa5'; ctx.lineWidth = 1;
+    for (let rr2 = 8; rr2 < r; rr2 += 3){ ctx.beginPath(); ctx.arc(40, 160, rr2, 0, 7); ctx.stroke(); }
+    ctx.strokeStyle = '#c4ccd4'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(40 + r * 0.7, 160 + r * 0.7); ctx.quadraticCurveTo(80, 236, 118, 244); ctx.stroke();
+  } else {
+    ctx.strokeStyle = '#ff5252'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(26, 146); ctx.lineTo(54, 174); ctx.moveTo(54, 146); ctx.lineTo(26, 174); ctx.stroke();
+  }
+  ctx.fillStyle = '#2e2e2e'; ctx.beginPath(); ctx.arc(40, 160, 6, 0, 7); ctx.fill();
+  text('針金 ' + fmt(G.wire) + '本', 40, 204, 13, G.wire < 1 ? '#ff8a80' : '#fff', 'center', true, 'rgba(0,0,0,.7)');
+  // worker
+  const bob = V.makeAnim > 0 ? Math.sin(V.makeAnim * Math.PI * 2) * 4 : Math.sin(V.anim * 2) * 1;
+  ctx.fillStyle = '#2f6fb3'; rr(98, 210 + bob * 0.3, 44, 44, 8); ctx.fill();
+  ctx.fillStyle = '#f1c9a0'; ctx.beginPath(); ctx.arc(120, 196 + bob * 0.3, 14, 0, 7); ctx.fill();
+  ctx.fillStyle = '#e0a030'; ctx.beginPath(); ctx.arc(120, 190 + bob * 0.3, 14, Math.PI, 0); ctx.fill(); ctx.fillRect(104, 188 + bob * 0.3, 32, 4);
+  ctx.fillStyle = '#222'; ctx.fillRect(114, 197 + bob * 0.3, 3, 3); ctx.fillRect(124, 197 + bob * 0.3, 3, 3);
+  ctx.strokeStyle = '#f1c9a0'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(102, 220); ctx.lineTo(116 - bob, 242 + bob); ctx.moveTo(138, 220); ctx.lineTo(132 + bob, 242 - bob); ctx.stroke();
+  if (G.lv.hand > 0){ ctx.strokeStyle = '#d33'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(132 + bob, 242 - bob); ctx.lineTo(146 + bob, 232 - bob); ctx.moveTo(132 + bob, 242 - bob); ctx.lineTo(148 + bob, 238 - bob); ctx.stroke(); }
+  // bench
+  ctx.fillStyle = '#a0703f'; ctx.fillRect(20, 250, 172, 12); ctx.fillStyle = '#7a5230'; ctx.fillRect(28, 262, 8, 43); ctx.fillRect(176, 262, 8, 43);
+  if (V.makeAnim > 0){
+    drawClip(126, 244, 1.8, 0, CLIPCOL[G.lv.quality], 1 - V.makeAnim);
+    ctx.fillStyle = 'rgba(255,255,200,' + (V.makeAnim * 0.6) + ')'; ctx.beginPath(); ctx.arc(126, 244, 22 * (1 - V.makeAnim) + 6, 0, 7); ctx.fill();
+  }
+  text('手作業', 105, 276, 13, '#fff', 'center', true, 'rgba(0,0,0,.6)');
+}
+
+function drawMachine(k, i, run){
+  const p = slotPos(k, i), x = p.x, y = p.y, a = V.mAnim * tuneM();
+  const lamp = run ? '#5dff7a' : '#ff4040';
+  if (k === 'bender'){
+    ctx.fillStyle = '#1f5f59'; rr(x, y + 14, 28, 30, 4); ctx.fill();
+    ctx.fillStyle = '#2f8f86'; rr(x + 2, y + 16, 24, 24, 3); ctx.fill();
+    ctx.save(); ctx.translate(x + 14, y + 11); ctx.rotate(a * 5 + i);
+    ctx.fillStyle = '#ccd'; ctx.beginPath(); ctx.arc(0, 0, 9, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#556'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-9, 0); ctx.lineTo(9, 0); ctx.moveTo(0, -9); ctx.lineTo(0, 9); ctx.stroke();
+    ctx.restore();
+    ctx.fillStyle = lamp; ctx.beginPath(); ctx.arc(x + 21, y + 22, 3, 0, 7); ctx.fill();
+  } else if (k === 'press'){
+    ctx.fillStyle = '#7a4a1a'; ctx.fillRect(x, y, 6, 60); ctx.fillRect(x + 40, y, 6, 60); ctx.fillRect(x, y, 46, 10); ctx.fillRect(x, y + 50, 46, 10);
+    const ram = (0.5 + 0.5 * Math.sin(a * 7 + i)) * 24;
+    ctx.fillStyle = '#d9822b'; ctx.fillRect(x + 8, y + 10 + ram, 30, 14);
+    ctx.fillStyle = '#999'; ctx.fillRect(x + 20, y + 10, 6, ram);
+    ctx.fillStyle = lamp; ctx.beginPath(); ctx.arc(x + 23, y + 5, 3, 0, 7); ctx.fill();
+  } else {
+    ctx.fillStyle = '#3a2f80'; rr(x, y + 20, 114, 44, 6); ctx.fill();
+    ctx.fillStyle = '#5b4bb3'; rr(x + 3, y + 23, 108, 30, 4); ctx.fill();
+    ctx.fillStyle = '#9ff3ff'; ctx.fillRect(x + 10, y + 28, 40, 12);
+    for (let j = 0; j < 3; j++){ const py = (0.5 + 0.5 * Math.sin(a * 9 + j * 2 + i)) * 10; ctx.fillStyle = '#ccc'; ctx.fillRect(x + 60 + j * 14, y + 14 + py, 8, 12); }
+    for (let j = 0; j < 6; j++){
+      ctx.save(); ctx.translate(x + 10 + j * 19, y + 58); ctx.rotate(a * 6);
+      ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(0, 0, 6, 0, 7); ctx.fill(); ctx.fillStyle = '#888'; ctx.fillRect(-1, -6, 2, 12); ctx.restore();
+    }
+    ctx.fillStyle = '#555'; ctx.fillRect(x + 96, y, 12, 22);
+    if (run) for (let j = 0; j < 3; j++){ const s = (V.anim * 0.8 + j / 3) % 1; ctx.fillStyle = 'rgba(230,230,240,' + (0.5 * (1 - s)) + ')'; ctx.beginPath(); ctx.arc(x + 102 + s * 10, y - s * 30, 5 + s * 8, 0, 7); ctx.fill(); }
+    ctx.fillStyle = lamp; ctx.beginPath(); ctx.arc(x + 104, y + 30, 4, 0, 7); ctx.fill();
+  }
+}
+function drawMachines(){
+  const run = !G.starved;
+  for (const k of ['line', 'press', 'bender']){
+    const it = CFG.machines[k], n = G.m[k], lim = SLOTS[k];
+    const top = slotPos(k, 0).y;
+    if (G.phase >= it.phase && n === 0){
+      const p = slotPos(k, 0);
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 2; ctx.strokeRect(p.x, p.y, p.w, p.h); ctx.restore();
+      text(it.name + 'を置ける（' + (SHOP.indexOf(k) + 1) + 'キー）', p.x + p.w + 8, p.y + p.h / 2, 13, '#fff', 'left', true, 'rgba(0,0,0,.6)');
+    }
+    for (let i = 0; i < Math.min(n, lim); i++) drawMachine(k, i, run);
+    if (n > 0){
+      const lab = it.name + ' ×' + n + '台 ・ 毎秒' + fmtR(n * it.rate * tuneM()) + '本';
+      ctx.font = '800 12px ' + FONT; const w = ctx.measureText(lab).width + 12;
+      ctx.fillStyle = 'rgba(0,0,0,.6)'; rr(262, top - 15, w, 14, 4); ctx.fill();
+      text(lab, 268, top - 8, 12, '#fff', 'left', true);
+      if (n > lim) text('+' + (n - lim) + '台', 748, top + 20, 13, '#ffd36b', 'left', true, 'rgba(0,0,0,.6)');
+    }
+  }
+}
+function drawBelt(){
+  ctx.fillStyle = '#2b2b2b'; ctx.fillRect(190, 292, 574, 14);
+  ctx.fillStyle = '#4a4a4a'; const off = V.beltX % 20;
+  for (let x = 190 - 20 + off; x < 764; x += 20) if (x > 188) ctx.fillRect(x, 294, 8, 10);
+  ctx.fillStyle = '#1a1a1a'; ctx.fillRect(200, 306, 6, 10); ctx.fillRect(470, 306, 6, 10); ctx.fillRect(740, 306, 6, 10);
+}
+function drawCrate(){
+  const b = V.crateBump > 0 ? Math.sin(V.crateBump * Math.PI) * 3 : 0;
+  const n = G.stock < 1 ? 0 : Math.min(35, Math.ceil(Math.sqrt(G.stock) * 2));
+  const col = CLIPCOL[G.lv.quality];
+  for (let i = 0; i < n; i++){ const c = i % 7, r = Math.floor(i / 7); drawClip(772 + c * 9 + (r % 2) * 4, 286 - r * 7 - b, 0.7, i * 1.7, col); }
+  ctx.fillStyle = '#9b6a3a'; ctx.fillRect(762, 270 - b, 76, 36); ctx.strokeStyle = '#6b4520'; ctx.lineWidth = 3; ctx.strokeRect(762, 270 - b, 76, 36);
+  ctx.beginPath(); ctx.moveTo(762, 288 - b); ctx.lineTo(838, 288 - b); ctx.stroke();
+  text('在庫 ' + fmt(G.stock) + '本', 800, 324, 14, '#fff', 'center', true, 'rgba(0,0,0,.7)');
+  if (G.sales){
+    ctx.fillStyle = '#c0392b'; ctx.fillRect(792, 224, 18, 26); ctx.fillStyle = '#f1c9a0'; ctx.beginPath(); ctx.arc(801, 216, 9, 0, 7); ctx.fill();
+    text('販売員', 801, 260, 11, '#fff', 'center', true, 'rgba(0,0,0,.7)');
+  }
+}
+function drawTruck(){
+  const x = 842 + V.truckOff;
+  ctx.fillStyle = '#eceff3'; rr(x, 226, 78, 60, 4); ctx.fill();
+  ctx.fillStyle = '#2f6fb3'; ctx.fillRect(x, 262, 78, 8);
+  drawClip(x + 39, 244, 1.5, 0, '#5a6b7c');
+  ctx.fillStyle = '#2f6fb3'; rr(x + 78, 244, 38, 42, 5); ctx.fill();
+  ctx.fillStyle = '#bfe6ff'; ctx.fillRect(x + 90, 250, 20, 14);
+  ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(x + 20, 290, 10, 0, 7); ctx.arc(x + 96, 290, 10, 0, 7); ctx.fill();
+  ctx.fillStyle = '#999'; ctx.beginPath(); ctx.arc(x + 20, 290, 4, 0, 7); ctx.arc(x + 96, 290, 4, 0, 7); ctx.fill();
+  text('出荷トラック', 900, 340, 12, '#cfd6e4', 'center', true, 'rgba(0,0,0,.7)');
+  for (const bx of V.boxes){
+    const t = bx.t, px = 800 + (870 - 800) * t, py = 262 - Math.sin(t * Math.PI) * 40;
+    ctx.fillStyle = '#c8955a'; ctx.fillRect(px - 8, py - 7, 16, 14); ctx.strokeStyle = '#7a5230'; ctx.lineWidth = 1; ctx.strokeRect(px - 8, py - 7, 16, 14);
+  }
+}
+function drawHUD(){
+  // stats box
+  ctx.fillStyle = 'rgba(10,12,18,.72)'; rr(8, 8, 228, 100, 8); ctx.fill();
+  const r = mRate();
+  text('機械の生産', 18, 23, 14, '#9aa3b5', 'left', true); text('毎秒 ' + fmtR(r) + '本', 226, 23, 16, G.starved ? '#ff8a80' : '#7dff9a', 'right', true);
+  text('手で作る', 18, 45, 14, '#9aa3b5', 'left', true); text('1回 ' + CFG.hand.per[G.lv.hand] + '本', 226, 45, 16, '#fff', 'right', true);
+  text('売値', 18, 67, 14, '#9aa3b5', 'left', true); text('1本 ¥' + price(), 226, 67, 16, '#ffe9a6', 'right', true);
+  text('販売', 18, 89, 14, '#9aa3b5', 'left', true); text(G.sales ? '販売員が自動で' : '「売る」で手動', 226, 89, 15, '#fff', 'right', true);
+  // hint banner
+  const h = hint();
+  if (h){
+    ctx.fillStyle = 'rgba(10,12,18,.78)'; rr(246, 8, 706, 34, 8); ctx.fill();
+    text(h[0], 599, 25, 17, h[1], 'center', true, null, 690);
+  }
+  // starved
+  if (G.state === 'playing' && G.starved && Math.floor(V.anim * 2.5) % 2 === 0){
+    ctx.fillStyle = 'rgba(160,20,20,.85)'; rr(330, 112, 420, 44, 10); ctx.fill();
+    text('針金切れ！ 機械が止まっています', 540, 134, 22, '#fff', 'center', true);
+  }
+  // phase banner
+  if (V.banner.t > 0){
+    const al = Math.min(1, V.banner.t);
+    ctx.globalAlpha = al;
+    ctx.fillStyle = 'rgba(20,24,34,.92)'; rr(190, 150, 580, 96, 14); ctx.fill();
+    ctx.strokeStyle = '#ffd36b'; ctx.lineWidth = 3; rr(190, 150, 580, 96, 14); ctx.stroke();
+    text('段階 ' + (V.banner.ph + 1) + '/4「' + CFG.phaseName[V.banner.ph] + '」に到達！', 480, 182, 28, '#ffd36b', 'center', true);
+    text('解放：' + CFG.phaseUnlock[V.banner.ph], 480, 220, 17, '#fff', 'center', true);
+    ctx.globalAlpha = 1;
+  }
+  // floats
+  for (const f of V.floats){
+    ctx.globalAlpha = Math.max(0, 1 - f.t / f.life);
+    text(f.s, f.x, f.y - f.t * 30, f.size, f.col, 'center', true, 'rgba(0,0,0,.75)');
+  }
+  ctx.globalAlpha = 1;
+}
+function hint(){
+  if (G.state !== 'playing') return null;
+  const r = mRate();
+  if (rescueMode()) return ['お金も針金もない → 針金の「くず針金を拾う」(C) で無料でもらおう', '#ff9d9d'];
+  if (G.wire < 1 && G.stock >= 1 && cash() < packCost(0)) return ['針金切れ！ まず「売る」(X) でお金にしてから針金を買おう（C）', '#ff9d9d'];
+  if (G.wire < 1) return ['針金切れ！ 生産が止まっています → 針金を買おう（C）', '#ff9d9d'];
+  if (r > 0 && G.wire < r * 8) return ['針金があと' + Math.ceil(G.wire / r) + '秒で切れる！ 早めに買おう（' + (G.phase >= 3 ? 'B/N' : G.phase >= 2 ? 'V' : 'C') + '）', '#ffd36b'];
+  if (G.shipped < CFG.phaseAt[1]){
+    if (G.stock >= 1 && (G.stock + G.shipped >= CFG.phaseAt[1] || G.stock >= 5)) return ['「売る」(X) でクリップをお金に変えよう', '#ffffff'];
+    return ['「作る」(Space / Z) を押して、クリップを1本ずつ曲げよう', '#ffffff'];
+  }
+  if (G.m.bender === 0) return ['曲げ機（1キー ¥' + itemInfo('bender').cost + '）を買うと、毎秒1本 自動で作ってくれる！', '#9fffb0'];
+  if (!G.sales && G.stock >= 30) return ['在庫がたまっている → 「売る」(X)！ 販売員（4キー）を雇うと自動で売れる', '#ffffff'];
+  if (wirePrice() <= 40 && G.wire < Math.max(300, r * 40)) return ['針金の相場が安い！ 今のうちに買いだめしよう', '#9fffb0'];
+  if (G.phase < 3) return ['出荷 ' + fmt(CFG.phaseAt[G.phase + 1]) + '本で次の段階「' + CFG.phaseName[G.phase + 1] + '」（あと' + fmt(CFG.phaseAt[G.phase + 1] - G.shipped) + '本）', '#ffffff'];
+  return ['最終段階！ 出荷 ' + fmt(CFG.goal) + '本でクリア（あと' + fmt(Math.max(0, CFG.goal - G.shipped)) + '本）', '#ffd36b'];
+}
+
+function updateVisual(dt){
+  V.anim += dt;
+  if (G.state !== 'playing') return;
+  if (!G.starved) V.mAnim += dt;
+  V.beltX += 150 * dt;
+  if (V.makeAnim > 0) V.makeAnim = Math.max(0, V.makeAnim - dt / 0.3);
+  if (V.spoolPop > 0) V.spoolPop = Math.max(0, V.spoolPop - dt / 0.4);
+  if (V.crateBump > 0) V.crateBump = Math.max(0, V.crateBump - dt / 0.25);
+  if (V.banner.t > 0) V.banner.t -= dt;
+  // emit sprites from machines
+  if (!G.starved){
+    const per = {bender: Math.min(3, tuneM()), press: 2.5, line: 3.5};
+    for (const k of ['bender', 'press', 'line']){
+      const n = Math.min(G.m[k], SLOTS[k]); if (!n) continue;
+      V.emit[k] += dt * Math.min(n * per[k], 18);
+      while (V.emit[k] >= 1){
+        V.emit[k] -= 1;
+        if (V.sprites.length > 220) continue;
+        const p = slotPos(k, Math.floor(Math.random() * n));
+        V.sprites.push({mode: 0, x: p.x + p.w / 2 + (Math.random() - 0.5) * 8, y: p.y + p.h, vy: 0, a: Math.random() * 6});
+      }
+    }
+  } else { V.emit.bender = V.emit.press = V.emit.line = 0; }
+  const S = V.sprites;
+  for (let i = S.length - 1; i >= 0; i--){
+    const s = S[i];
+    if (s.mode === 0){ s.vy += 900 * dt; s.y += s.vy * dt; s.a += dt * 6; if (s.y >= 292){ s.y = 292; s.mode = 1; } }
+    else if (s.mode === 2){ s.t += dt / 0.35; const t = Math.min(1, s.t); s.x = s.x0 + (s.x1 - s.x0) * t; s.y = s.y0 + (s.y1 - s.y0) * t - Math.sin(Math.PI * t) * 30; s.a += dt * 8; if (s.t >= 1){ s.mode = 1; s.y = 292; } }
+    else { s.x += 150 * dt; if (s.x >= 770){ S.splice(i, 1); V.crateBump = 1; } }
+  }
+  for (let i = V.boxes.length - 1; i >= 0; i--){ V.boxes[i].t += dt / 0.4; if (V.boxes[i].t >= 1) V.boxes.splice(i, 1); }
+  if (V.boxes.length > 6) V.boxes.splice(0, V.boxes.length - 6);
+  // truck
+  if (V.truckMode === 0 && V.pendingCash > 0){
+    float(900, 205, '+¥' + fmt(V.pendingCash), '#7dff9a', 22);
+    float(900, 180, fmt(V.pendingN) + '本 出荷', '#ffffff', 14);
+    V.pendingCash = 0; V.pendingN = 0; V.truckMode = 1;
+  }
+  if (V.truckMode === 1){ V.truckOff += 520 * dt; if (V.truckOff > 200) V.truckMode = 2; }
+  else if (V.truckMode === 2){ V.truckOff -= 420 * dt; if (V.truckOff <= 0){ V.truckOff = 0; V.truckMode = 0; } }
+  for (let i = V.floats.length - 1; i >= 0; i--){ V.floats[i].t += dt; if (V.floats[i].t >= V.floats[i].life) V.floats.splice(i, 1); }
+}
+
+function draw(){
+  drawBG();
+  drawBelt();
+  const col = CLIPCOL[G.lv.quality];
+  for (const s of V.sprites) if (s.mode === 0) drawClip(s.x, s.y, 0.8, s.a, col);
+  drawMachines();
+  for (const s of V.sprites) if (s.mode !== 0) drawClip(s.x, s.y - 2, 0.8, s.mode === 1 ? 0 : s.a, col);
+  drawWorker();
+  drawCrate();
+  drawTruck();
+  drawHUD();
+}
+
+let last = performance.now();
+function frame(now){
+  let dt = (now - last) / 1000; last = now;
+  if (!(dt > 0)) dt = 0; if (dt > 120) dt = 120;
+  let rem = dt;
+  while (rem > 1e-9 && G.state === 'playing'){ const h = Math.min(rem, 0.05); step(h); rem -= h; }
+  updateVisual(Math.min(dt, 0.1));
+  draw();
+  ui();
+  requestAnimationFrame(frame);
+}
+ui(); draw();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
