@@ -1,0 +1,114 @@
+{
+  "pass": false,
+  "passed": 15,
+  "total": 16,
+  "checks": [
+    {
+      "id": "static.file_exists",
+      "pass": true,
+      "required": true,
+      "detail": "42KB"
+    },
+    {
+      "id": "static.size_limit",
+      "pass": true,
+      "required": true,
+      "detail": "42KB（上限400KB）"
+    },
+    {
+      "id": "static.no_external_resources",
+      "pass": true,
+      "required": true,
+      "detail": "外部参照なし"
+    },
+    {
+      "id": "static.scripts_parse",
+      "pass": true,
+      "required": true,
+      "detail": "インラインscript 1個 OK"
+    },
+    {
+      "id": "static.mentions_contract",
+      "pass": true,
+      "required": true,
+      "detail": "window.__game あり"
+    },
+    {
+      "id": "loads_without_errors",
+      "pass": true,
+      "required": true,
+      "detail": "読み込み時のエラーなし"
+    },
+    {
+      "id": "no_network",
+      "pass": true,
+      "required": true,
+      "detail": "外部通信なし"
+    },
+    {
+      "id": "contract_present",
+      "pass": true,
+      "required": true,
+      "detail": "state=title score=0"
+    },
+    {
+      "id": "contract_fields",
+      "pass": true,
+      "required": true,
+      "detail": "「ひつじ追いの丘」 goal=制限時間内に、草原のひつじを全部、柵の入口から柵の中へ追い込む（全7ステージ）。 / controls=矢印キーで牧羊犬を動かす（ひつじは犬から逃げる）。Spaceで吠えると近くのひつじが速く逃げる。画面クリックでその場所へ犬が走る。"
+    },
+    {
+      "id": "not_blank",
+      "pass": true,
+      "required": true,
+      "detail": "タイトル画面のPNG 138874 bytes"
+    },
+    {
+      "id": "starts_with_space_or_enter",
+      "pass": true,
+      "required": true,
+      "detail": "Space/Enterで playing になった"
+    },
+    {
+      "id": "input_changes_screen",
+      "pass": true,
+      "required": true,
+      "detail": "描画が非決定的なため参考判定（Math.random以外の乱数源？）"
+    },
+    {
+      "id": "no_layout_shift",
+      "pass": true,
+      "required": true,
+      "detail": "ランダム操作中のレイアウトシフト 合計0・0回（上限 0.05・3回）"
+    },
+    {
+      "id": "no_runtime_errors",
+      "pass": true,
+      "required": true,
+      "detail": "ランダム操作90秒でエラーなし"
+    },
+    {
+      "id": "score_is_finite",
+      "pass": true,
+      "required": true,
+      "detail": "score は常に有限"
+    },
+    {
+      "id": "game_progresses",
+      "pass": false,
+      "required": true,
+      "detail": "ランダム操作で何も変化しない"
+    },
+    {
+      "id": "game_can_end",
+      "pass": false,
+      "required": false,
+      "detail": "90秒で決着しなかった（参考）"
+    }
+  ],
+  "screenshots": [
+    "gate-title.png",
+    "gate-play.png"
+  ],
+  "errors": []
+}

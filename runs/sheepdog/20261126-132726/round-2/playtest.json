@@ -1,0 +1,50 @@
+{
+  "total": 0.5,
+  "review": {
+    "scores": {
+      "clarity": 4,
+      "controls": 2,
+      "goal": 3,
+      "fairness": 2,
+      "fun": 2,
+      "brief_fit": 3,
+      "visuals": 4,
+      "stability": 5,
+      "depth": 2
+    },
+    "reached": "lost",
+    "bugs": [
+      {
+        "what": "Dog moves much faster than a fleeing sheep. A short key hold runs the dog into the flock or past it, so you can't push from behind.",
+        "evidence": "play/011.png"
+      },
+      {
+        "what": "Sheep don't flee directly away from the dog. Coming in from the left at the same height sends them up or down instead of right, toward the entrance.",
+        "evidence": "play/113.png"
+      },
+      {
+        "what": "Sheep pile up at the top-right corner, along the pen's top fence and in the gap between the pen and the right screen edge, and can barely be moved back out.",
+        "evidence": "play/079.png"
+      },
+      {
+        "what": "Score keeps rising with 0 sheep penned. The screen doesn't explain what the score is for.",
+        "evidence": "play/098.png"
+      },
+      {
+        "what": "The stage-start banner stays over the top of the field for several seconds and covers sheep and the dog's path.",
+        "evidence": "play/004.png"
+      }
+    ],
+    "fixes": [
+      "Make the dog slower than a fleeing sheep (about 0.8x), and slow the dog further when it is close to sheep. Make sheep flee straight along the line from the dog through the sheep. That way pushing from behind visibly moves the flock forward.",
+      "Stop sheep from getting stuck: steer them back toward the middle near screen edges, and close the gap between the pen and the right edge (or move the pen in from the edge). Also add a funnel-shaped guide fence at the entrance so stage 1 can be cleared in 60–90 seconds.",
+      "Remove the rising score or say on screen what it measures (for example only the time bonus when a sheep enters the pen). Shrink the start banner to the top bar or fade it out within 2 seconds."
+    ],
+    "summary": "The art, screen stability and the clarity of the goal are good, but the dog is too fast, sheep flee sideways and get stuck at edges and corners, and I couldn't clear stage 1 in two tries. So I never saw stage 2 or the stage-by-stage additions the brief asks for."
+  },
+  "steps": 113,
+  "clears_ms": [],
+  "runtime_errors": [],
+  "costUsd": 2.8051699999999995,
+  "error": null
+}

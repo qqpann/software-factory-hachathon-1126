@@ -1,0 +1,46 @@
+{
+  "total": 0.53,
+  "review": {
+    "scores": {
+      "clarity": 4,
+      "controls": 3,
+      "goal": 3,
+      "fairness": 2,
+      "fun": 2,
+      "brief_fit": 3,
+      "visuals": 4,
+      "stability": 5,
+      "depth": 2
+    },
+    "reached": "lost",
+    "bugs": [
+      {
+        "what": "Sheep react from too far away (about 100–120px) and run directly away from the dog, so going around behind them scatters them first. In stage 1 I could not get the group to the entrance, and it took two attempts to get 1 of 6 in",
+        "evidence": "play/030.png, play/050.png, play/103.png"
+      },
+      {
+        "what": "Sheep pile up on the top edge, in the top-right corner and on the outside of the pen/funnel walls, and it is very hard to get them back out (a sheep sat on top of the pen fence)",
+        "evidence": "play/067.png, play/071.png, play/074.png"
+      },
+      {
+        "what": "A sheep that reaches the inside corner of the funnel slips back out over the top wall",
+        "evidence": "play/093.png, play/095.png"
+      },
+      {
+        "what": "While moving to a clicked spot, the dog drives away any sheep along its path, so clicking to reposition breaks up the herd",
+        "evidence": "play/069.png, play/099.png"
+      }
+    ],
+    "fixes": [
+      "For stage 1, reduce the sheep's reaction distance to about 60–70px and make them drift in the dog's direction of travel rather than straight away from the dog, so 'walking toward the entrance from behind' clearly works",
+      "Add a soft force near the screen edges and the outside of the pen that steers sheep back toward the middle, and make the funnel walls longer and wider so it guides sheep in",
+      "Provide a way to approach slowly (for example, holding Shift to walk) so the hint 'push gently' can actually be done, and shrink the sheep's reaction distance while walking"
+    ],
+    "summary": "The drawing and screen stability are very good, but stage 1's herding fights the player: sheep scatter early and get stuck at the edges, so I lost twice and never saw stages 2–7. The core feel of steering the flock with the dog's position needs tuning first."
+  },
+  "steps": 109,
+  "clears_ms": [],
+  "runtime_errors": [],
+  "costUsd": 2.6693179999999996,
+  "error": null
+}
