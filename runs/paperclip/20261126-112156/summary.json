@@ -1,0 +1,798 @@
+{
+  "slug": "paperclip",
+  "brief": "briefs/paperclip.md",
+  "opts": {
+    "maxRounds": 6,
+    "threshold": 0.75,
+    "patience": 3,
+    "maxCost": 10,
+    "actions": 80,
+    "mock": false
+  },
+  "stopReason": "stalled",
+  "bestRound": 2,
+  "bestScore": 0.8,
+  "cost": 8.4702492,
+  "rounds": [
+    {
+      "round": 1,
+      "roundDir": "runs/paperclip/20261126-112156/round-1",
+      "score": 0.59,
+      "build": {
+        "ok": true,
+        "summary": "1. `index.html` は1ファイルで完結する、クリップ工場のクリッカーゲームとして新しく作りました。流れは「タイトル → 遊ぶ → クリア」で、`window.__game`（`state` と `score`）は契約どおり公開・更新しています。Space / Enter またはクリックで開始し、クリア後も Space / Enter でもう一度遊べます。\n2. 赤い大ボタン（クリック、Space、C）でクリップを作ります。作ったクリップは自動で売れてお金になり、右のボタン（S、W、1〜4 キーでも可）で売る・針金・機械を買えます。今買えるものは緑の「買える！」で目立たせ、買えないものには「お金があと$◯足りない」と理由を出します。針金が切れると生産が止まる警告、次にやることを示す手順表示、合計1,000本までの進捗バーと経過時間も大きな文字で画面に出しています。\n3. まだ一度も動かしていません。node とブラウザの実行に承認が必要だったので、文法チェックも、遊んで3〜4分でクリアできるかの数値確認もできていません。ボタンを押さないと何も作られないので、放置だけではクリアできない作りです。",
+        "costUsd": 0.6341332
+      },
+      "gate": {
+        "pass": true,
+        "passed": 15,
+        "total": 15,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "21KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "21KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「ちいさなクリップ工場」 goal=クリップを合計1,000本つくればクリア（負けはなし、早いほど好記録） / controls=赤い「クリップを作る」ボタンをクリック（Space/Cキー）で作る。右のボタンかキー S=売る W=針金 1=曲げ機 2=手袋 3=自動ライン 4=自動発注 で買う"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 221797 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "入力ありと入力なしで画面が変わる"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.42,
+        "review": {
+          "scores": {
+            "clarity": 4,
+            "controls": 4,
+            "goal": 3,
+            "fairness": 1,
+            "fun": 2,
+            "brief_fit": 2
+          },
+          "reached": "neither",
+          "bugs": [
+            {
+              "what": "ヒント通り最初に曲げ機($15)を買うと、初期針金40本を売り切っても所持金が$24.9で針金($25)が買えず、針金0・お金増加なしの永久詰みになる（売値が実質約$0.98/本のため）",
+              "evidence": "play/026.png"
+            },
+            {
+              "what": "所持金が「$25.0」と表示されているのに針金ボタンは『お金があと $1 足りない』と出る（小数の丸め表示の不一致）",
+              "evidence": "play/027.png"
+            },
+            {
+              "what": "針金0・お金不足の詰み状態で『クリップを作って売ろう』と実行不可能な指示を出す",
+              "evidence": "play/027.png"
+            },
+            {
+              "what": "『在庫を全部売る』（売る操作）に『買える！』バッジが表示される",
+              "evidence": "play/017.png"
+            }
+          ],
+          "fixes": [
+            "詰み防止：針金0かつ所持金<針金価格のときは手で1本作れる救済（例：『くず針金を拾う』で数本補給）を入れるか、初期針金を50本以上にする／初回の針金を$15程度に下げる。売値も表示通りの$1にそろえる",
+            "序盤のテンポ改善：曲げ機を2本/秒にする、または最初のヒントを『まず針金を買い足してから曲げ機』の順にして、機械購入後に生産の伸びがはっきり体感できるようにする",
+            "所持金の表示を切り捨てにする（$24.9 なら $24.9 と出す）、不足額の表示も小数第1位まで出して見た目と購入可否を一致させる。売るボタンのバッジは『売れる！』にする"
+          ],
+          "summary": "画面の案内と操作の反応は良好だが、ヒントどおりに最初に曲げ機を買うと針金が買えなくなって永久に詰む序盤の経済バグがあり、序盤のテンポも遅いため、このままでは安心して遊べない。"
+        },
+        "steps": 79,
+        "runtime_errors": [],
+        "costUsd": 1.0380182,
+        "error": null
+      }
+    },
+    {
+      "round": 2,
+      "roundDir": "runs/paperclip/20261126-112156/round-2",
+      "score": 0.8,
+      "build": {
+        "ok": true,
+        "summary": "前の評価で指摘された不具合はすべて直しました。ただし、この環境では実行の許可が出なかったため、ブラウザでの動作確認も構文チェックもできていません。変更後のコードを読み直しただけです。\n\n1. 詰み対策：初期針金を50本、針金の値段を$20に変えました。それでも針金0でお金が足りない時は、赤いボタンが「くず針金を拾う（+5本）」に変わり、案内・ヒント・手順表示もそれに合わせます。在庫が売り切れずに端数が残る問題も直しました。\n2. 表示のずれ：所持金は切り捨てで表示し、不足額は小数第1位まで出すようにしました。購入できるかの判定も表示と同じ値でするので、「$25.0なのに足りない」は起きません。売るボタンのバッジは「売れる！」にしました。\n3. テンポ：曲げ機を毎秒2本にしました。曲げ機を買った後、針金が少ないと「$20貯まったら針金を買う（W）」とヒントが出ます。",
+        "costUsd": 0.6009196000000002
+      },
+      "gate": {
+        "pass": true,
+        "passed": 15,
+        "total": 15,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "23KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "23KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「ちいさなクリップ工場」 goal=クリップを合計1,000本つくればクリア（負けはなし、早いほど好記録） / controls=赤い「クリップを作る」ボタンをクリック（Space/Cキー）で作る。右のボタンかキー S=売る W=針金 1=曲げ機 2=手袋 3=自動ライン 4=自動発注 で買う"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 221637 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "描画が非決定的なため参考判定（Math.random以外の乱数源？）"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.71,
+        "review": {
+          "scores": {
+            "clarity": 5,
+            "controls": 4,
+            "goal": 4,
+            "fairness": 4,
+            "fun": 3,
+            "brief_fit": 3
+          },
+          "reached": "won",
+          "bugs": [
+            {
+              "what": "想定3〜4分のところ 1:45.2 でクリアでき、職人の手袋は一度も買わずに済んだ（難易度が低すぎる）",
+              "evidence": "play/064.png"
+            },
+            {
+              "what": "自動発注＋自動ライン購入後は、売る・針金をまったく押さずに待つだけで残り約300本が完成し、終盤はほぼ放置でクリアできる",
+              "evidence": "play/062.png"
+            },
+            {
+              "what": "1回分の行動（約0.15秒）ではクリップは1本しかできず、クリック連打でしか手作業を進められない",
+              "evidence": "play/003.png"
+            }
+          ],
+          "fixes": [
+            "全体の進行を遅くして3〜4分に合わせる：曲げ機の値段の上がり方を強くする（$15→$18→$22…をもっと急に）、自動ラインを$300以上にする、売値か機械の生産量を下げる",
+            "自動発注を「1回ごとに手数料がかかる」「在庫が30を切ってから補充までに数秒遅れる」などにして、生産速度が上がると針金切れが実際に起きるようにし、手動で針金を買う判断を残す",
+            "自然に売れる速さを画面に数字で出す（例：自動販売 3本/秒）。在庫がたまる理由と S を押す意味が分かるようにする。手袋の効果も数字で比べられるようにして、買う価値を見せる"
+          ],
+          "summary": "画面だけで遊び方が分かり、機械を買うたびに生産ペースが上がる気持ちよさは brief どおりにできている。ただ 1:45 でクリアでき、終盤は自動化で放置に近くなり、針金切れの判断も起きないため、手応えと「もう一回」の動機が弱い。"
+        },
+        "steps": 65,
+        "runtime_errors": [],
+        "costUsd": 0.9536711999999997,
+        "error": null
+      }
+    },
+    {
+      "round": 3,
+      "roundDir": "runs/paperclip/20261126-112156/round-3",
+      "score": 0.8,
+      "build": {
+        "ok": true,
+        "summary": "3周目の修正を `index.html` に入れました。この環境ではスクリプトもブラウザも実行できなかったため、ブラウザでの動作確認とクリア時間の計測はしていません。3〜4分になるかは手計算の見積もりだけです。\n\n1. **進行を遅くした**：曲げ機は毎秒+1本（$25から1.3倍ずつ値上がり）、自動ラインは毎秒+8本（$400から1.5倍ずつ）、手袋は$50/$150/$400、自動発注は$200、針金は$25にしました。\n2. **放置で進まないようにした**：自然に売れるのは1本/秒だけにし、倉庫が120本で満杯になると機械も止まるので、Sで売る判断が残ります。自動発注は針金が30本を切ってから4秒後に届き、毎回$5の手数料がかかるため、生産が速いと針金切れが実際に起き、手で針金を買う判断が残ります。\n3. **数字で見せるようにした**：自然に売れる速さ（1本/秒）、在庫「x / 120」、手作業のペース（本/秒）、手袋を買ったときのペースの増え方（約A→B本/秒）、針金があと何秒で切れるか、自動発注の配達残り秒数を画面に出し、タイトル・ヘルプ・ヒントの文も新しいルールに合わせました。",
+        "costUsd": 1.2174344
+      },
+      "gate": {
+        "pass": true,
+        "passed": 15,
+        "total": 15,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "25KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "25KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「ちいさなクリップ工場」 goal=クリップを合計1,000本つくればクリア（負けはなし、早いほど好記録） / controls=赤い「クリップを作る」ボタンをクリック（Space/Cキー）で作る。右のボタンかキー S=売る W=針金 1=曲げ機 2=手袋 3=自動ライン 4=自動発注 で買う"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 246591 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "描画が非決定的なため参考判定（Math.random以外の乱数源？）"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.71,
+        "review": {
+          "scores": {
+            "clarity": 5,
+            "controls": 4,
+            "goal": 3,
+            "fairness": 4,
+            "fun": 3,
+            "brief_fit": 4
+          },
+          "reached": "neither",
+          "bugs": [
+            {
+              "what": "売却時の「+$NN」フロート文字が「在庫を全部売る」の見出しに重なって読みにくい",
+              "evidence": "play/071.png"
+            },
+            {
+              "what": "職人の手袋の説明が非クリック時に『手作業 約0.0→0.0本/秒』となり、効果が読み取れない",
+              "evidence": "play/053.png"
+            }
+          ],
+          "fixes": [
+            "中盤の加速を強める：曲げ機の値上がり率を下げる（例 ×1.15）か、自動ラインを$250前後に下げ、曲げ機4〜5台の時点で手が届くようにする（3分時点で420本、毎秒4本止まりでは『機械で伸びる』実感が弱い）",
+            "職人の手袋の効果表示を『1クリックで作れる本数 1→2本』のように固定の値にし、クリックの速さで0.0になる表記をやめる",
+            "売却時の +$ ポップアップをボタンの見出しと重ならない位置（お金の欄の上など）に出す"
+          ],
+          "summary": "画面だけで遊び方・次に買うもの・針金切れの危険がよく分かり、UIの完成度は高い。ただ中盤以降の機械投資による伸びが緩く、3分経っても自動ラインに届かず、数字が増える気持ちよさがあまりない。"
+        },
+        "steps": 79,
+        "runtime_errors": [],
+        "costUsd": 0.8021636000000002,
+        "error": null
+      }
+    },
+    {
+      "round": 4,
+      "roundDir": "runs/paperclip/20261126-112156/round-4",
+      "score": 0.65,
+      "build": {
+        "ok": true,
+        "summary": " 2.5–3 minutes, which may be a little faster than the brief's 3–4 minutes.\n\n1. **Pacing:** each bending machine now costs 15% more than the last instead of 30%. The automatic line now starts at $250 (×1.4 each) instead of $400 (×1.5), so you can afford it with about 4–5 bending machines.\n2. **Gloves:** the description now always reads 「1クリックで作れる本数 1→2本」 instead of the click-speed figure that showed 0.0.\n3. **Floating text:** the \"+$\" from selling now appears above the money box on the left. The auto-order delivery pop (\"針金+100\") now appears above the wire box, so neither covers a button label.",
+        "costUsd": 0.4706626000000001
+      },
+      "gate": {
+        "pass": true,
+        "passed": 15,
+        "total": 15,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "25KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "25KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「ちいさなクリップ工場」 goal=クリップを合計1,000本つくればクリア（負けはなし、早いほど好記録） / controls=赤い「クリップを作る」ボタンをクリック（Space/Cキー）で作る。右のボタンかキー S=売る W=針金 1=曲げ機 2=手袋 3=自動ライン 4=自動発注 で買う"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 244052 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "入力ありと入力なしで画面が変わる"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.5,
+        "review": {
+          "scores": {
+            "clarity": 4,
+            "controls": 3,
+            "goal": 3,
+            "fairness": 3,
+            "fun": 2,
+            "brief_fit": 3
+          },
+          "reached": "neither",
+          "bugs": [
+            {
+              "what": "針金切れで赤ボタンが「くず針金を拾う（+5本）」に変わると、文字が折り返してボタンからはみ出し、左端の「く」が切れる",
+              "evidence": "play/036.png"
+            },
+            {
+              "what": "2:48 経過・機械5台でも 401/1000 本。曲げ機の値上がり（25→29→33→44→50）が速く、自然販売も $1/秒 で頭打ちなので、briefの『3〜4分でクリア』に届かないペース",
+              "evidence": "play/078.png"
+            },
+            {
+              "what": "Space を2秒押し続けても1本しか作れず、手作業の生産が序盤の大きな負担になる（最初の機械まで約25回クリック）",
+              "evidence": "play/003.png"
+            }
+          ],
+          "fixes": [
+            "序盤〜中盤を速くする：曲げ機の初期価格を $10〜15 にして値上がりを緩くし、自然販売の速さを機械台数に応じて上げる（または『お客さん』のアップグレードを足す）。3〜4分でクリアできるか実測して調整する",
+            "機械を買ったときにペースの上がり方がはっきり見えるようにする：曲げ機を +2本/秒 にするか、自動ラインを $120 前後にして中盤の目標を近づける",
+            "赤ボタンの見出しを、ボタン内に1行で収まる長さ・サイズにする（例「くず針金 +5」）"
+          ],
+          "summary": "画面での説明・買える物の目立たせ方・針金切れの救済は丁寧で分かりやすい。ただ経済のテンポが遅く、機械を足しても伸びが小さいので、briefの『3〜4分でクリア』と『機械を買うとはっきり速くなる』気持ちよさに届いていない。"
+        },
+        "steps": 80,
+        "runtime_errors": [],
+        "costUsd": 0.7100144000000002,
+        "error": null
+      }
+    },
+    {
+      "round": 5,
+      "roundDir": "runs/paperclip/20261126-112156/round-5",
+      "score": 0.77,
+      "build": {
+        "ok": true,
+        "summary": "5周目の修正は `index.html` に入れましたが、まったく動かしていません。このセッションでは node もブラウザも実行できず、構文チェックも試遊もしていないので、「3〜4分でクリア」に届くかは実測していません。手で概算しただけです。変更点は次の3つです。\n\n1. **序盤〜中盤を速く**：曲げ機を $12 から・毎秒 +2本、自動ラインを $120 から・毎秒 +10本、手袋を $30/90/240、自動発注を $120 に下げ、倉庫を 300本に広げました。お客さんが自動で買う速さも、1 + 機械の生産量×0.5 本/秒と台数に応じて増え、画面に表示します。\n2. **機械を買ったときの伸びを見えるように**：買うと生産ペースの数字の横に「+2本/秒！」「+10本/秒！」が飛び出します。赤ボタンと Space/C/Enter は長押しで約7本/秒の連続生産になり、画面の説明文も直しました。\n3. **赤ボタンの文字切れ**：見出しを1行に収まる「くず針金 +5」に短くし、ヒント文もこの表記に合わせました。\n\n途中で、自分の編集で入れた if/else の崩れ（構文エラー）を1か所見つけて直しました。ほかに同じ種類のミスが残っていないかは確認できていません。",
+        "costUsd": 0.9177543999999999
+      },
+      "gate": {
+        "pass": true,
+        "passed": 15,
+        "total": 15,
+        "checks": [
+          {
+            "id": "static.file_exists",
+            "pass": true,
+            "required": true,
+            "detail": "26KB"
+          },
+          {
+            "id": "static.size_limit",
+            "pass": true,
+            "required": true,
+            "detail": "26KB（上限400KB）"
+          },
+          {
+            "id": "static.no_external_resources",
+            "pass": true,
+            "required": true,
+            "detail": "外部参照なし"
+          },
+          {
+            "id": "static.scripts_parse",
+            "pass": true,
+            "required": true,
+            "detail": "インラインscript 1個 OK"
+          },
+          {
+            "id": "static.mentions_contract",
+            "pass": true,
+            "required": true,
+            "detail": "window.__game あり"
+          },
+          {
+            "id": "loads_without_errors",
+            "pass": true,
+            "required": true,
+            "detail": "読み込み時のエラーなし"
+          },
+          {
+            "id": "no_network",
+            "pass": true,
+            "required": true,
+            "detail": "外部通信なし"
+          },
+          {
+            "id": "contract_present",
+            "pass": true,
+            "required": true,
+            "detail": "state=title score=0"
+          },
+          {
+            "id": "contract_fields",
+            "pass": true,
+            "required": true,
+            "detail": "「ちいさなクリップ工場」 goal=クリップを合計1,000本つくればクリア（負けはなし、早いほど好記録） / controls=赤い「クリップを作る」ボタンをクリック（Space/Cキー）で作る。右のボタンかキー S=売る W=針金 1=曲げ機 2=手袋 3=自動ライン 4=自動発注 で買う"
+          },
+          {
+            "id": "not_blank",
+            "pass": true,
+            "required": true,
+            "detail": "タイトル画面のPNG 247316 bytes"
+          },
+          {
+            "id": "starts_with_space_or_enter",
+            "pass": true,
+            "required": true,
+            "detail": "Space/Enterで playing になった"
+          },
+          {
+            "id": "input_changes_screen",
+            "pass": true,
+            "required": true,
+            "detail": "描画が非決定的なため参考判定（Math.random以外の乱数源？）"
+          },
+          {
+            "id": "no_runtime_errors",
+            "pass": true,
+            "required": true,
+            "detail": "ランダム操作90秒でエラーなし"
+          },
+          {
+            "id": "score_is_finite",
+            "pass": true,
+            "required": true,
+            "detail": "score は常に有限"
+          },
+          {
+            "id": "game_progresses",
+            "pass": true,
+            "required": true,
+            "detail": "state か score が動いた"
+          },
+          {
+            "id": "game_can_end",
+            "pass": false,
+            "required": false,
+            "detail": "90秒で決着しなかった（参考）"
+          }
+        ],
+        "screenshots": [
+          "gate-title.png",
+          "gate-play.png"
+        ],
+        "errors": []
+      },
+      "playtest": {
+        "total": 0.67,
+        "review": {
+          "scores": {
+            "clarity": 5,
+            "controls": 4,
+            "goal": 3,
+            "fairness": 4,
+            "fun": 3,
+            "brief_fit": 3
+          },
+          "reached": "won",
+          "bugs": [
+            {
+              "what": "手袋購入後、作るボタンに「針金1本 → クリップ2本」と出るが、実際は1本につき針金1本を消費する（74→26本で48本生産）。表示が誤解を招く",
+              "evidence": "play/015.png"
+            },
+            {
+              "what": "Space長押しのリピートで約7クリック/秒の手作業になり、手作業だけで6〜12本/秒出る。想定3〜4分のところ1:06でクリアできてしまう",
+              "evidence": "play/055.png"
+            },
+            {
+              "what": "後半は針金の消費が約25本/秒なのに、自動発注・Wとも100本単位なので約4秒ごとに針金切れで止まり、待つだけの時間になる",
+              "evidence": "play/053.png"
+            }
+          ],
+          "fixes": [
+            "1,000本が1分で終わるので、バランスを直してクリアを3〜4分に伸ばす（長押しの連打を約3回/秒までに制限する、機械の値段を上げる、自動ラインの性能を下げる、などで）",
+            "後半の針金の買い方を直す（購入量を消費に合わせて増やす、まとめ買い割引、自動発注の量を強化できるようにする）。何度も止まって待つだけにならないようにする",
+            "手袋の説明を『1回押すとN本（針金もN本使う）』に直す。あわせて、自動発注と自動販売が揃った後は放置で進みすぎないよう、お客さんの自動購入を遅くするか、売値を下げるなどで手で売る意味を残す"
+          ],
+          "summary": "画面の案内と「買える／足りない」表示がとても丁寧で、作る→売る→針金→機械の流れが迷わず分かる。ただ長押しが強すぎて1分ちょっとでクリアでき、後半は針金待ちと放置になるので、達成感と判断の手応えが薄い。"
+        },
+        "steps": 56,
+        "runtime_errors": [],
+        "costUsd": 0.9485496000000002,
+        "error": null
+      }
+    }
+  ]
+}

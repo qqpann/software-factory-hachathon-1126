@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=960, height=720">
+<title>ちいさなクリップ工場</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #2b2420; font-family: "Hiragino Kaku Gothic ProN", "Meiryo", "Noto Sans JP", sans-serif; }
+  #app { position: relative; width: 960px; height: 720px; margin: 0 auto; background: #f4ecdf; color: #2b2420; overflow: hidden; user-select: none; }
+  /* top */
+  #top { height: 96px; background: #3d5a73; color: #fff; padding: 10px 20px; }
+  #top h1 { margin: 0; font-size: 26px; display: inline-block; }
+  #goalText { font-size: 20px; margin-left: 16px; color: #ffe28a; font-weight: bold; }
+  #timeText { float: right; font-size: 24px; font-weight: bold; }
+  #progWrap { margin-top: 8px; height: 30px; background: #1f3243; border-radius: 15px; position: relative; overflow: hidden; }
+  #progBar { height: 100%; width: 0%; background: linear-gradient(90deg, #f6c445, #f09b3a); transition: width .1s; }
+  #progLabel { position: absolute; inset: 0; text-align: center; line-height: 30px; font-weight: bold; font-size: 19px; color: #fff; text-shadow: 0 1px 2px #000; }
+  /* flow */
+  #flow { display: flex; gap: 6px; padding: 8px 20px 0; height: 46px; }
+  .step { flex: 1; text-align: center; font-size: 17px; font-weight: bold; padding: 6px 0; border-radius: 8px; background: #e2d6c3; color: #7a6a58; }
+  .step.on { background: #f6c445; color: #2b2420; box-shadow: 0 0 0 3px #e08a1e inset; }
+  .arrow { font-size: 22px; line-height: 36px; color: #a08e78; }
+  /* main */
+  #main { display: flex; gap: 16px; padding: 10px 20px; height: 520px; }
+  #left { width: 400px; display: flex; flex-direction: column; gap: 10px; }
+  #right { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  #makeBtn { position: relative; height: 170px; border-radius: 18px; background: #e8553b; color: #fff; font-size: 38px; font-weight: bold; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 0 #a5321e; transition: transform .05s; }
+  #makeBtn small { font-size: 18px; font-weight: normal; margin-top: 6px; }
+  #makeBtn.press { transform: translateY(6px); box-shadow: 0 2px 0 #a5321e; }
+  #makeBtn.off { background: #9b8f84; box-shadow: 0 8px 0 #6c625a; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .stat { background: #fff; border-radius: 10px; padding: 6px 12px; border: 2px solid #d8cbb6; }
+  .stat .k { font-size: 15px; color: #6b5d4e; }
+  .stat .v { font-size: 28px; font-weight: bold; }
+  .stat.warn { border-color: #e8553b; background: #ffe3dc; }
+  #rateBox { background: #2e6b4f; color: #fff; border-radius: 10px; padding: 8px 14px; font-size: 18px; }
+  #rateBox b { font-size: 30px; color: #b9ffd5; }
+  #msg { background: #fffbe8; border: 2px dashed #d0b45c; border-radius: 10px; padding: 8px 12px; font-size: 18px; font-weight: bold; min-height: 66px; }
+  #msg.alert { background: #ffe3dc; border-color: #e8553b; color: #b0261a; }
+  .shop { position: relative; display: flex; align-items: center; background: #fff; border: 3px solid #d8cbb6; border-radius: 12px; padding: 6px 12px; cursor: pointer; min-height: 72px; }
+  .shop .key { width: 40px; height: 40px; border-radius: 8px; background: #3d5a73; color: #fff; font-weight: bold; font-size: 22px; display: flex; align-items: center; justify-content: center; margin-right: 12px; flex: none; }
+  .shop .body { flex: 1; }
+  .shop .name { font-size: 21px; font-weight: bold; }
+  .shop .desc { font-size: 15px; color: #6b5d4e; }
+  .shop .cost { text-align: right; font-size: 22px; font-weight: bold; min-width: 150px; }
+  .shop .why { font-size: 14px; color: #b0261a; font-weight: bold; }
+  .shop .own { font-size: 15px; color: #2e6b4f; font-weight: bold; }
+  .shop.can { border-color: #2e9a5f; background: #eafff1; box-shadow: 0 0 0 3px #7fe0a6; }
+  .shop.can .cost { color: #1e7a45; }
+  .shop.can::after { content: "買える！"; position: absolute; top: -10px; right: 10px; background: #2e9a5f; color: #fff; font-size: 13px; font-weight: bold; padding: 1px 8px; border-radius: 8px; }
+  .shop.cannot { opacity: .62; }
+  .shop.done { opacity: .5; }
+  .shop.flash { animation: fl .3s; }
+  @keyframes fl { 0% { transform: scale(1.03); } 100% { transform: scale(1); } }
+  #help { position: absolute; bottom: 0; left: 0; right: 0; height: 58px; background: #3d5a73; color: #fff; font-size: 17px; padding: 6px 20px; line-height: 23px; }
+  .pop { position: absolute; font-weight: bold; font-size: 26px; color: #fff; pointer-events: none; text-shadow: 0 2px 3px #000; animation: up .8s forwards; }
+  @keyframes up { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-60px); } }
+  /* overlay */
+  #overlay { position: absolute; inset: 0; background: rgba(30, 24, 20, .88); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; z-index: 10; cursor: pointer; }
+  #overlay.hide { display: none; }
+  #overlay h2 { font-size: 52px; margin: 0 0 14px; color: #ffe28a; }
+  #overlay .big { font-size: 28px; margin: 8px 0; }
+  #overlay .rule { font-size: 21px; line-height: 1.7; background: rgba(255,255,255,.08); padding: 14px 28px; border-radius: 12px; margin: 14px 0; text-align: left; }
+  #overlay .go { font-size: 30px; font-weight: bold; background: #e8553b; padding: 14px 36px; border-radius: 14px; margin-top: 10px; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .65; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="top">
+    <h1>ちいさなクリップ工場</h1><span id="goalText">目標：クリップを合計 1,000 本つくる</span>
+    <span id="timeText">時間 0:00.0</span>
+    <div id="progWrap"><div id="progBar"></div><div id="progLabel">0 / 1,000 本</div></div>
+  </div>
+  <div id="flow">
+    <div class="step" id="st1">① 作る</div><div class="arrow">→</div>
+    <div class="step" id="st2">② 売る</div><div class="arrow">→</div>
+    <div class="step" id="st3">③ 針金を買う</div><div class="arrow">→</div>
+    <div class="step" id="st4">④ 機械を買う</div>
+  </div>
+  <div id="main">
+    <div id="left">
+      <div id="makeBtn">クリップを作る<small>クリック または Space / C キー<br>針金1本 → クリップ<span id="perClick">1</span>本</small></div>
+      <div class="stats">
+        <div class="stat"><div class="k">お金</div><div class="v" id="vMoney">$0</div></div>
+        <div class="stat" id="wireStat"><div class="k">針金の残り</div><div class="v" id="vWire">40</div></div>
+        <div class="stat"><div class="k">在庫（売れる前）</div><div class="v" id="vStock">0</div></div>
+        <div class="stat"><div class="k">売値</div><div class="v">$1 / 本</div></div>
+      </div>
+      <div id="rateBox">機械の生産ペース：<b id="vRate">0</b> 本/秒<br><span id="rateNote" style="font-size:15px">機械を買うと自動で作ってくれます</span></div>
+      <div id="msg">赤いボタンを押すとクリップが1本できます！</div>
+    </div>
+    <div id="right">
+      <div class="shop" id="b_sell"><div class="key">S</div><div class="body"><div class="name">在庫を全部売る</div><div class="desc">在庫は放っておいても少しずつ売れます</div></div><div class="cost"><span class="c"></span><div class="why"></div></div></div>
+      <div class="shop" id="b_wire"><div class="key">W</div><div class="body"><div class="name">針金を買う（100本分）</div><div class="desc">針金が0になると生産が止まる！</div></div><div class="cost"><span class="c"></span><div class="why"></div></div></div>
+      <div class="shop" id="b_bend"><div class="key">1</div><div class="body"><div class="name">曲げ機</div><div class="desc">自動で毎秒 +1 本つくる <span class="own"></span></div></div><div class="cost"><span class="c"></span><div class="why"></div></div></div>
+      <div class="shop" id="b_glove"><div class="key">2</div><div class="body"><div class="name">職人の手袋</div><div class="desc">1回押すと +1 本多く作れる <span class="own"></span></div></div><div class="cost"><span class="c"></span><div class="why"></div></div></div>
+      <div class="shop" id="b_line"><div class="key">3</div><div class="body"><div class="name">自動ライン</div><div class="desc">自動で毎秒 +10 本つくる <span class="own"></span></div></div><div class="cost"><span class="c"></span><div class="why"></div></div></div>
+      <div class="shop" id="b_order"><div class="key">4</div><div class="body"><div class="name">針金の自動発注</div><div class="desc">針金が30本を切ると自動で買い足す <span class="own"></span></div></div><div class="cost"><span class="c"></span><div class="why"></div></div></div>
+    </div>
+  </div>
+  <div id="help">遊び方：赤いボタン（Space/C）でクリップを作る → 自動で売れてお金になる → 針金（W）と機械（1〜4）を買う。<br>合計1,000本でクリア。負けはありません。早くクリアするほど好記録！</div>
+  <div id="overlay"></div>
+</div>
+<script>
+(function () {
+  'use strict';
+  const GOAL = 1000, PRICE = 1, WIRE_N = 100, WIRE_P = 25, START_WIRE = 40;
+  const G = window.__game = {
+    state: 'title', score: 0,
+    title: 'ちいさなクリップ工場',
+    goal: 'クリップを合計1,000本つくればクリア（負けはなし、早いほど好記録）',
+    controls: '赤い「クリップを作る」ボタンをクリック（Space/Cキー）で作る。右のボタンかキー S=売る W=針金 1=曲げ機 2=手袋 3=自動ライン 4=自動発注 で買う',
+  };
+  const $ = (id) => document.getElementById(id);
+  let s;
+  let best = null;
+  try { const b = parseFloat(localStorage.getItem('clipFactoryBest')); if (isFinite(b)) best = b; } catch (e) {}
+
+  function reset() {
+    s = { money: 0, wire: START_WIRE, stock: 0, made: 0, bend: 0, glove: 0, line: 0, order: false, t: 0, wonAt: 0, sold: 0, wireBought: 0, emptyWarned: false, clicks: 0 };
+    G.score = 0;
+  }
+  reset();
+
+  const costBend = () => Math.round(15 * Math.pow(1.2, s.bend));
+  const costGlove = () => [20, 60, 150][s.glove];
+  const costLine = () => Math.round(200 * Math.pow(1.35, s.line));
+  const COST_ORDER = 120;
+  const perClick = () => 1 + s.glove;
+  const rate = () => s.bend * 1 + s.line * 10;
+  const fmt = (n) => Math.floor(n).toLocaleString('en-US');
+  const money = (n) => '$' + fmt(n);
+  const fmtTime = (t) => { const m = Math.floor(t / 60), sec = t - m * 60; return m + ':' + (sec < 10 ? '0' : '') + sec.toFixed(1); };
+
+  let msgTimer = 0;
+  function say(text, alert) { const m = $('msg'); m.textContent = text; m.className = alert ? 'alert' : ''; msgTimer = 3; }
+
+  function pop(text, x, y, color) {
+    const p = document.createElement('div'); p.className = 'pop'; p.textContent = text;
+    p.style.left = x + 'px'; p.style.top = y + 'px'; if (color) p.style.color = color;
+    $('app').appendChild(p); setTimeout(() => p.remove(), 800);
+  }
+
+  function make() {
+    if (G.state !== 'playing') return;
+    const btn = $('makeBtn');
+    btn.classList.add('press'); setTimeout(() => btn.classList.remove('press'), 80);
+    if (s.wire < 1) { say('針金がありません！ 右の「針金を買う（W）」で買い足そう', true); return; }
+    const n = Math.min(perClick(), Math.floor(s.wire));
+    s.wire -= n; s.stock += n; s.made += n; s.clicks++;
+    pop('+' + n + '本', 160 + Math.random() * 120, 190 + Math.random() * 30);
+    if (s.clicks === 1) say('できた！ 在庫は自動で売れて、お金になります');
+  }
+  function sellAll() {
+    if (G.state !== 'playing') return;
+    if (s.stock < 1) { say('在庫がありません。まずクリップを作ろう', true); return; }
+    const n = Math.floor(s.stock); s.stock -= n; s.money += n * PRICE; s.sold += n;
+    pop('+' + money(n * PRICE), 600, 140, '#ffe28a'); flash('b_sell');
+  }
+  function buyWire(auto) {
+    if (s.money < WIRE_P) { if (!auto) say('お金が足りません（針金は ' + money(WIRE_P) + '）。クリップを作って売ろう', true); return false; }
+    s.money -= WIRE_P; s.wire += WIRE_N; s.wireBought++; s.emptyWarned = false;
+    if (!auto) { flash('b_wire'); say('針金を100本分買いました'); }
+    return true;
+  }
+  function buy(kind) {
+    if (G.state !== 'playing') return;
+    let c;
+    if (kind === 'bend') c = costBend();
+    else if (kind === 'glove') { if (s.glove >= 3) { say('手袋はもう最高レベルです'); return; } c = costGlove(); }
+    else if (kind === 'line') c = costLine();
+    else if (kind === 'order') { if (s.order) { say('自動発注はもう導入済みです'); return; } c = COST_ORDER; }
+    if (s.money < c) { say('お金があと ' + money(Math.ceil(c - s.money)) + ' 足りません', true); return; }
+    s.money -= c;
+    if (kind === 'bend') { s.bend++; say('曲げ機を買った！ 生産ペース ' + rate() + ' 本/秒に'); }
+    if (kind === 'glove') { s.glove++; say('手袋で、1回押すと ' + perClick() + ' 本作れるように！'); }
+    if (kind === 'line') { s.line++; say('自動ラインを導入！ 生産ペース ' + rate() + ' 本/秒に'); }
+    if (kind === 'order') { s.order = true; say('自動発注を導入！ 針金切れの心配が減ります'); }
+    flash('b_' + kind);
+  }
+  function flash(id) { const e = $(id); e.classList.remove('flash'); void e.offsetWidth; e.classList.add('flash'); }
+
+  // overlay
+  function showTitle() {
+    const o = $('overlay'); o.className = '';
+    o.innerHTML = '<h2>ちいさなクリップ工場</h2>' +
+      '<div class="big">町工場でペーパークリップを作って売り、工場を大きくしよう！</div>' +
+      '<div class="rule">① 赤いボタン（クリック / Space / C）で針金からクリップを作る<br>' +
+      '② 作ったクリップは自動で売れて <b>お金</b> になる（S で全部売る）<br>' +
+      '③ お金で <b>針金</b>（W）を買い足す ― 針金が0だと生産が止まる！<br>' +
+      '④ <b>機械</b>（1〜4キー）を買うと自動で作ってくれる<br>' +
+      '<b style="color:#ffe28a">目標：合計 1,000 本つくればクリア！</b>（負けなし・タイムを競う）</div>' +
+      (best ? '<div class="big">ベスト記録：' + fmtTime(best) + '</div>' : '') +
+      '<div class="go">Space / Enter またはクリックでスタート</div>';
+  }
+  function showWon() {
+    const o = $('overlay'); o.className = '';
+    const isBest = best === null || s.t < best;
+    if (isBest) { best = s.t; try { localStorage.setItem('clipFactoryBest', String(best)); } catch (e) {} }
+    o.innerHTML = '<h2>クリア！ 1,000本達成！</h2>' +
+      '<div class="big" style="font-size:40px">記録：<b>' + fmtTime(s.t) + '</b>' + (isBest ? '　<span style="color:#7fe0a6">ベスト更新！</span>' : '') + '</div>' +
+      '<div class="big">ベスト記録：' + fmtTime(best) + '</div>' +
+      '<div class="rule">曲げ機 ' + s.bend + '台 / 自動ライン ' + s.line + '台 / 手袋 Lv' + s.glove + '<br>手で押した回数 ' + s.clicks + '回 / 針金を買った回数 ' + s.wireBought + '回</div>' +
+      '<div class="go">Space / Enter でもう一度遊ぶ</div>';
+  }
+  function start() {
+    reset(); G.state = 'playing'; $('overlay').className = 'hide';
+    say('赤いボタンを押すとクリップが1本できます！');
+  }
+  function win() { G.state = 'won'; s.wonAt = performance.now(); showWon(); }
+
+  // input
+  document.addEventListener('keydown', (e) => {
+    const k = e.key;
+    if (k === ' ' || k === 'Enter' || k.startsWith('Arrow')) e.preventDefault();
+    if (G.state === 'title') { if (k === ' ' || k === 'Enter') start(); return; }
+    if (G.state === 'won' || G.state === 'lost') {
+      if ((k === ' ' || k === 'Enter') && performance.now() - s.wonAt > 800) { G.state = 'title'; start(); }
+      return;
+    }
+    const lk = k.toLowerCase();
+    if (k === ' ' || lk === 'c' || k === 'Enter') make();
+    else if (lk === 's') sellAll();
+    else if (lk === 'w') buyWire(false);
+    else if (k === '1') buy('bend');
+    else if (k === '2') buy('glove');
+    else if (k === '3') buy('line');
+    else if (k === '4') buy('order');
+  });
+  $('overlay').addEventListener('click', () => {
+    if (G.state === 'title') start();
+    else if (G.state === 'won' && performance.now() - s.wonAt > 800) start();
+  });
+  $('makeBtn').addEventListener('mousedown', (e) => { e.preventDefault(); make(); });
+  $('b_sell').addEventListener('click', sellAll);
+  $('b_wire').addEventListener('click', () => { if (G.state === 'playing') buyWire(false); });
+  $('b_bend').addEventListener('click', () => buy('bend'));
+  $('b_glove').addEventListener('click', () => buy('glove'));
+  $('b_line').addEventListener('click', () => buy('line'));
+  $('b_order').addEventListener('click', () => buy('order'));
+
+  // update loop
+  function setShop(id, cost, opts) {
+    const e = $(id); opts = opts || {};
+    const c = e.querySelector('.c'), w = e.querySelector('.why'), own = e.querySelector('.own');
+    if (own && opts.own !== undefined) own.textContent = opts.own;
+    if (opts.done) { e.className = 'shop done'; c.textContent = '導入済み'; w.textContent = ''; return; }
+    c.textContent = opts.label || money(cost);
+    const ok = opts.ok !== undefined ? opts.ok : s.money >= cost;
+    e.className = 'shop ' + (ok ? 'can' : 'cannot');
+    w.textContent = ok ? '' : (opts.why || ('お金があと ' + money(Math.ceil(cost - s.money)) + ' 足りない'));
+  }
+
+  function step(dt) {
+    s.t += dt;
+    // machines
+    const r = rate();
+    if (r > 0) {
+      const p = Math.min(r * dt, s.wire);
+      s.wire -= p; s.stock += p; s.made += p;
+    }
+    // customers buy 50%/s of stock, at least 2/s
+    if (s.stock > 0) {
+      const sell = Math.min(s.stock, Math.max(2, s.stock * 0.5) * dt);
+      s.stock -= sell; s.money += sell * PRICE; s.sold += sell;
+    }
+    // auto order
+    if (s.order && s.wire < 30) buyWire(true);
+    if (s.wire < 1 && !s.emptyWarned && (r > 0 || s.made > 0)) {
+      s.emptyWarned = true; say('針金切れ！ 生産が止まっています → 「針金を買う（W）」', true);
+    }
+    G.score = Math.floor(s.made);
+    if (s.made >= GOAL) { s.made = GOAL; G.score = GOAL; render(); win(); }
+  }
+
+  function render() {
+    const made = Math.floor(s.made);
+    $('progBar').style.width = Math.min(100, made / GOAL * 100) + '%';
+    $('progLabel').textContent = '合計 ' + fmt(made) + ' / 1,000 本（あと ' + fmt(Math.max(0, GOAL - made)) + ' 本）';
+    $('timeText').textContent = '時間 ' + fmtTime(s.t);
+    $('vMoney').textContent = '$' + (s.money < 100 ? s.money.toFixed(1) : fmt(s.money));
+    $('vWire').textContent = fmt(s.wire) + ' 本分';
+    $('wireStat').className = 'stat' + (s.wire < 10 ? ' warn' : '');
+    $('vStock').textContent = fmt(s.stock) + ' 本';
+    $('vRate').textContent = rate();
+    $('perClick').textContent = perClick();
+    $('rateNote').textContent = rate() === 0 ? '機械を買うと自動で作ってくれます' : (s.wire < 1 ? '※ 針金切れで停止中！' : '曲げ機 ' + s.bend + '台・自動ライン ' + s.line + '台 が稼働中');
+    $('makeBtn').className = s.wire < 1 ? 'off' : '';
+    if (s.wire < 1) $('makeBtn').firstChild.textContent = '針金切れ！';
+    else $('makeBtn').firstChild.textContent = 'クリップを作る';
+
+    setShop('b_sell', 0, { label: '+' + money(s.stock), ok: s.stock >= 1, why: '在庫がない' });
+    setShop('b_wire', WIRE_P, { why: s.money < WIRE_P ? 'お金があと ' + money(Math.ceil(WIRE_P - s.money)) + ' 足りない' : '' });
+    setShop('b_bend', costBend(), { own: '（所有 ' + s.bend + '台）' });
+    if (s.glove >= 3) setShop('b_glove', 0, { done: true, own: '（Lv3 最大）' });
+    else setShop('b_glove', costGlove(), { own: '（Lv' + s.glove + '）' });
+    setShop('b_line', costLine(), { own: '（所有 ' + s.line + '台）' });
+    if (s.order) setShop('b_order', 0, { done: true, own: '（稼働中）' });
+    else setShop('b_order', COST_ORDER, {});
+
+    // flow highlight: what to do next
+    let st = 1;
+    if (s.wire < 1 || (s.wire < 15 && s.money >= WIRE_P && !s.order)) st = 3;
+    else if (s.money >= costBend() || (s.glove < 3 && s.money >= costGlove()) || s.money >= costLine()) st = 4;
+    else if (s.stock >= 5) st = 2;
+    for (let i = 1; i <= 4; i++) $('st' + i).className = 'step' + (i === st ? ' on' : '');
+  }
+
+  let last = performance.now();
+  function frame(now) {
+    let dt = (now - last) / 1000; last = now;
+    if (!(dt > 0)) dt = 0; if (dt > 0.25) dt = 0.25;
+    if (G.state === 'playing') {
+      step(dt);
+      if (msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0 && G.state === 'playing') { const m = $('msg'); if (m.className !== 'alert' || s.wire >= 1) { m.className = ''; m.textContent = hint(); } } }
+      if (G.state === 'playing') render();
+    }
+    requestAnimationFrame(frame);
+  }
+  function hint() {
+    if (s.wire < 1) return '針金切れ！ 生産が止まっています → 「針金を買う（W）」';
+    if (s.bend === 0 && s.money < costBend()) return 'ヒント：クリップを作って売り、$' + costBend() + ' 貯めて「曲げ機（1）」を買おう';
+    if (s.bend === 0) return 'ヒント：「曲げ機（1）」が買えます！ 自動で作ってくれます';
+    if (!s.order && s.bend >= 3) return 'ヒント：機械が増えると針金がすぐ減ります。「自動発注（4）」も便利';
+    if (s.line === 0) return 'ヒント：「自動ライン（3）」は毎秒10本！ 大きく生産が上がります';
+    return '機械を増やして、1,000本をめざそう！ 針金切れに注意';
+  }
+  render();
+  showTitle();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
