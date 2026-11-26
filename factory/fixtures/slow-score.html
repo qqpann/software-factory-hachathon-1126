@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- 評価器の動作確認用の見本（工場の生成物ではありません）。90秒では点が動かないが画面は動く（game_progresses の検出用） -->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>見本: 動くが点は増えない</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #1d2230; color: #fff; font: bold 24px sans-serif; display: grid; place-items: center; }
+  #btn { width: 960px; height: 720px; border: 0; background: #2d6cdf; color: #fff; font-size: 48px; }
+</style>
+</head>
+<body>
+<button id="btn"></button>
+<script>
+const game = window.__game = {
+  state: 'title', score: 0,
+  title: 'ボタン連打',
+  goal: '300回クリックすればクリア',
+  controls: 'Spaceでスタート、画面をクリック',
+};
+const btn = document.getElementById('btn');
+function render() {
+  btn.textContent = game.state === 'title' ? 'Space でスタート'
+    : game.state === 'won' ? 'クリア！ Space でもう一度' : `クリック ${game.score} / 30`;
+}
+addEventListener('keydown', (e) => {
+  if ((e.code === 'Space' || e.code === 'Enter') && game.state !== 'playing') {
+    e.preventDefault(); game.score = 0; game.state = 'playing'; render();
+  } else if (e.code === 'Space' || e.code === 'Enter') e.preventDefault();
+});
+let clicks = 0;
+btn.addEventListener('click', () => {
+  if (game.state !== 'playing') return;
+  clicks++;
+  btn.style.backgroundColor = `hsl(${clicks * 37 % 360} 60% 45%)`;
+  if (clicks >= 300) { game.score = 1; game.state = 'won'; }
+});
+render();
+</script>
+</body>
+</html>

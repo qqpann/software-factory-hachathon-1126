@@ -102,6 +102,7 @@ export async function runGate(htmlPath, outDir, { browser: shared } = {}) {
       const first = await m.readGame();
       const shiftBefore = await m.layoutShift();
       let changed = false;
+      const firstFrame = await m.page.screenshot();
       for (let t = 0; t < 90000; ) {
         const ms = 80 + Math.floor(rnd() * 400);
         if (rnd() < 0.3) {
@@ -151,7 +152,15 @@ export async function runGate(htmlPath, outDir, { browser: shared } = {}) {
       );
       add('no_runtime_errors', m.errors.length === 0, m.errors.length ? m.errors.slice(0, 5).join(' | ') : 'ランダム操作90秒でエラーなし');
       add('score_is_finite', badScore === null, badScore === null ? 'score は常に有限' : `score が不正: ${badScore}`);
-      add('game_progresses', changed, changed ? 'state か score が動いた' : 'ランダム操作で何も変化しない');
+      // Score may legitimately stay put for 90s (e.g. a stage needs skill to
+      // clear), so a game whose picture moves also counts as progressing.
+      let moved = false;
+      if (!changed) moved = !(await m.page.screenshot()).equals(firstFrame);
+      add(
+        'game_progresses',
+        changed || moved,
+        changed ? 'state か score が動いた' : moved ? 'state と score は90秒動かないが、画面は動いている' : 'ランダム操作で画面も state も score も何も変化しない',
+      );
       add('game_can_end', !!ended, ended ? `ランダム操作で ${ended} に到達` : '90秒で決着しなかった（参考）', false);
       if (ended) add('can_restart', restarted, restarted ? 'Space/Enterでやり直せる' : 'やり直せない');
       errors.push(...m.errors);

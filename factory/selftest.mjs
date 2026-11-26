@@ -142,6 +142,12 @@ if (browser) {
     assert.ok(r.pass, r.checks.filter((c) => !c.pass).map((c) => `${c.id}: ${c.detail}`).join('\n'));
   });
 
+  await test('機械判定: 90秒で点が動かなくても画面が動けば進行あり', async () => {
+    const r = await runGate(fx('slow-score.html'), path.join(tmp, 'slow'), { browser });
+    const c = r.checks.find((x) => x.id === 'game_progresses');
+    assert.ok(c.pass && c.detail.includes('画面は動いている'), c.detail);
+  });
+
   await test('機械判定: 操作で文字やボタンがずれる見本はレイアウトシフトで落ちる', async () => {
     const r = await runGate(fx('shifty.html'), path.join(tmp, 'shift'), { browser });
     const failed = r.checks.filter((c) => !c.pass && c.required).map((c) => c.id);
