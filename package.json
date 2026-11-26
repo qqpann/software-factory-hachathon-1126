@@ -1,0 +1,16 @@
+{
+  "name": "game-factory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ブラウザゲームを生成し、AIの試遊で自己改善するソフトウェアファクトリー",
+  "scripts": {
+    "factory": "node factory/run.mjs",
+    "gate": "node factory/gate.mjs",
+    "test": "node factory/selftest.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "playwright": "^1.50.0"
+  }
+}
