@@ -1,0 +1,100 @@
+<!doctype html>
+<!-- 評価器の動作確認用の見本（工場の生成物ではありません） -->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>見本: いん石よけ</title>
+<style>
+  html, body { margin: 0; background: #0b1020; height: 100%; display: grid; place-items: center; }
+  canvas { background: #121a33; }
+</style>
+</head>
+<body>
+<canvas id="c" width="800" height="600"></canvas>
+<script>
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height, GOAL = 60;
+const keys = new Set();
+const game = window.__game = {
+  state: 'title', score: 0,
+  title: 'いん石よけ',
+  goal: '60秒間いん石に当たらなければクリア',
+  controls: '← → で左右に移動、Spaceでスタート',
+};
+let player, rocks, elapsed, spawn, last = null;
+
+function reset() {
+  player = { x: W / 2, y: H - 50, r: 16 };
+  rocks = []; elapsed = 0; spawn = 0; game.score = 0;
+}
+reset();
+
+addEventListener('keydown', (e) => {
+  keys.add(e.code);
+  if ((e.code === 'Space' || e.code === 'Enter') && game.state !== 'playing') {
+    reset(); game.state = 'playing';
+  }
+  if (e.code.startsWith('Arrow') || e.code === 'Space') e.preventDefault();
+});
+addEventListener('keyup', (e) => keys.delete(e.code));
+
+function update(dt) {
+  if (game.state !== 'playing') return;
+  elapsed += dt;
+  game.score = Math.floor(elapsed * 10);
+  const speed = 320;
+  if (keys.has('ArrowLeft')) player.x -= speed * dt;
+  if (keys.has('ArrowRight')) player.x += speed * dt;
+  player.x = Math.max(player.r, Math.min(W - player.r, player.x));
+  // 最初の5秒は少なめ、その後ゆっくり増える
+  const rate = elapsed < 5 ? 1.2 : 1.2 + (elapsed - 5) * 0.06;
+  spawn += dt * rate;
+  while (spawn >= 1) {
+    spawn -= 1;
+    rocks.push({ x: 20 + Math.random() * (W - 40), y: -20, r: 12 + Math.random() * 14, v: 140 + Math.random() * 80 + elapsed * 3 });
+  }
+  for (const r of rocks) r.y += r.v * dt;
+  rocks = rocks.filter((r) => r.y < H + 40);
+  for (const r of rocks) {
+    if (Math.hypot(r.x - player.x, r.y - player.y) < r.r + player.r - 4) game.state = 'lost';
+  }
+  if (elapsed >= GOAL && game.state === 'playing') game.state = 'won';
+}
+
+function text(s, x, y, size, color = '#fff') {
+  ctx.fillStyle = color; ctx.font = `bold ${size}px sans-serif`; ctx.textAlign = 'center'; ctx.fillText(s, x, y);
+}
+
+function draw() {
+  ctx.fillStyle = '#121a33'; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#ffcf4a';
+  ctx.beginPath(); ctx.moveTo(player.x, player.y - 18); ctx.lineTo(player.x - 16, player.y + 14); ctx.lineTo(player.x + 16, player.y + 14); ctx.fill();
+  ctx.fillStyle = '#c0563a';
+  for (const r of rocks) { ctx.beginPath(); ctx.arc(r.x, r.y, r.r, 0, Math.PI * 2); ctx.fill(); }
+  ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = 'bold 22px sans-serif';
+  ctx.fillText(`残り ${Math.max(0, GOAL - elapsed).toFixed(1)} 秒`, 16, 32);
+  if (game.state === 'title') {
+    text(game.title, W / 2, H / 2 - 60, 56);
+    text(game.goal, W / 2, H / 2, 26);
+    text(game.controls, W / 2, H / 2 + 44, 26);
+    text('Space でスタート', W / 2, H / 2 + 110, 30, '#ffcf4a');
+  } else if (game.state === 'lost') {
+    text('ぶつかった！', W / 2, H / 2 - 20, 56, '#ff7a6a');
+    text(`記録 ${elapsed.toFixed(1)} 秒　Space でもう一度`, W / 2, H / 2 + 30, 26);
+  } else if (game.state === 'won') {
+    text('クリア！', W / 2, H / 2 - 20, 56, '#8cff9a');
+    text('Space でもう一度', W / 2, H / 2 + 30, 26);
+  }
+}
+
+function frame(t) {
+  const dt = last === null ? 0 : Math.min(0.05, (t - last) / 1000);
+  last = t;
+  update(dt); draw();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

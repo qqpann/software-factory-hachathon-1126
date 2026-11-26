@@ -1,0 +1,20 @@
+<!doctype html>
+<!-- 評価器が不合格を出せるか確かめるための壊れた見本 -->
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>壊れた見本</title>
+<script src="https://cdn.example.com/engine.js"></script>
+</head>
+<body>
+<canvas id="c" width="800" height="600"></canvas>
+<script>
+const ctx = document.getElementById('c').getContext('2d');
+function loop( {
+  ctx.fillRect(0, 0, 10, 10);
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

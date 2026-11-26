@@ -1,0 +1,4 @@
+node_modules/
+.DS_Store
+# 実行ログは発表に使うならコミットしてよい。既定では除外。
+runs/
