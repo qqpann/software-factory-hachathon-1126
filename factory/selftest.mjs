@@ -7,11 +7,11 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { staticCheck } from './static-check.mjs';
 import { feedbackText } from './build.mjs';
-import { scorePlaytest } from './playtest.mjs';
+import { scorePlaytest, SCORE_KEYS } from './playtest.mjs';
 import { historyText } from './lessons.mjs';
 import { writeReport } from './report.mjs';
 import { runClaude } from './lib/claude.mjs';
-import { extractJson, FACTORY_DIR, ROOT } from './lib/util.mjs';
+import { extractJson, FACTORY_DIR, ROOT, prompt } from './lib/util.mjs';
 
 const fx = (n) => path.join(FACTORY_DIR, 'fixtures', n);
 let failures = 0;
@@ -43,11 +43,18 @@ await test('静的チェック: 壊れた見本は外部参照と構文エラー
   assert.deepEqual(failed, ['mentions_contract', 'no_external_resources', 'scripts_parse']);
 });
 
-await test('試遊スコア: 1〜5を0〜1に正規化', () => {
-  assert.equal(scorePlaytest({ scores: { clarity: 5, controls: 5, goal: 5, fairness: 5, fun: 5, brief_fit: 5 } }), 1);
-  assert.equal(scorePlaytest({ scores: { clarity: 1, controls: 1, goal: 1, fairness: 1, fun: 1, brief_fit: 1 } }), 0);
-  assert.equal(scorePlaytest({ scores: { clarity: 4, controls: 4, goal: 4, fairness: 4, fun: 4, brief_fit: 4 } }), 0.75);
+await test('試遊スコア: 1〜5を0〜1に正規化（品質基準の3項目を含む）', () => {
+  const all = (v) => Object.fromEntries(SCORE_KEYS.map((k) => [k, v]));
+  assert.ok(['visuals', 'stability', 'depth'].every((k) => SCORE_KEYS.includes(k)));
+  assert.equal(scorePlaytest({ scores: all(5) }), 1);
+  assert.equal(scorePlaytest({ scores: all(1) }), 0);
+  assert.equal(scorePlaytest({ scores: all(4) }), 0.75);
   assert.equal(scorePlaytest(null), 0);
+});
+
+await test('作る係と試遊係のプロンプトに品質基準が入る', () => {
+  for (const name of ['builder', 'playtester']) assert.ok(prompt(name).includes('{{quality}}'), name);
+  assert.ok(fs.readFileSync(path.join(ROOT, 'QUALITY.md'), 'utf8').includes('レイアウト'));
 });
 
 await test('JSON抽出: 最後のjsonブロックを読む', () => {
@@ -120,6 +127,12 @@ if (browser) {
     assert.ok(r.pass, r.checks.filter((c) => !c.pass).map((c) => `${c.id}: ${c.detail}`).join('\n'));
   });
 
+  await test('機械判定: 操作で文字やボタンがずれる見本はレイアウトシフトで落ちる', async () => {
+    const r = await runGate(fx('shifty.html'), path.join(tmp, 'shift'), { browser });
+    const failed = r.checks.filter((c) => !c.pass && c.required).map((c) => c.id);
+    assert.deepEqual(failed, ['no_layout_shift']);
+  });
+
   await test('機械判定: 壊れた見本は不合格', async () => {
     const r = await runGate(fx('broken.html'), path.join(tmp, 'ng'), { browser });
     assert.equal(r.pass, false);
@@ -138,6 +151,7 @@ if (browser) {
     const d = await call('hold', 'ArrowLeft', 1000);
     assert.ok(d.time_ms - c.time_ms === 1000 && d.game.score >= 9, JSON.stringify(d));
     assert.ok(fs.existsSync(path.join(dir, d.screenshot)));
+    assert.equal(d.layout_shift, 0, 'layout_shift が返らない');
     await call('wait', 100);
     const f = await call('look');
     assert.ok(f.error && f.actions_left === 0, '上限が効かない');
@@ -148,4 +162,3 @@ if (browser) {
 
 console.log(failures ? `\n${failures}件失敗` : '\nすべて成功');
 process.exit(failures ? 1 : 0);
-void ROOT;

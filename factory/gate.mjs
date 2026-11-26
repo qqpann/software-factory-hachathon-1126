@@ -3,6 +3,11 @@ import { launchBrowser, openGame, startGame, PLAY_KEYS, VIEWPORT } from './lib/b
 import { staticCheck } from './static-check.mjs';
 import { ensureDir, writeJson, parseArgs, rel } from './lib/util.mjs';
 
+// Layout shift allowed during the monkey run, counting every shift (input or
+// not). CLS weighs by area, so small text that jitters on every update scores
+// low but is very visible; the count catches that.
+export const MAX_LAYOUT_SHIFT = 0.05;
+export const MAX_LAYOUT_SHIFT_COUNT = 3;
 const VALID_STATES = ['title', 'playing', 'won', 'lost'];
 // A 3x3 grid over the 960x720 viewport plus the center.
 const PROBE_CLICKS = [[480, 360], ...[160, 480, 800].flatMap((x) => [120, 360, 600].map((y) => [x, y]))];
@@ -95,6 +100,7 @@ export async function runGate(htmlPath, outDir, { browser: shared } = {}) {
       let ended = null;
       let restarted = null;
       const first = await m.readGame();
+      const shiftBefore = await m.layoutShift();
       let changed = false;
       for (let t = 0; t < 90000; ) {
         const ms = 80 + Math.floor(rnd() * 400);
@@ -132,6 +138,17 @@ export async function runGate(htmlPath, outDir, { browser: shared } = {}) {
       const playShot = path.join(outDir, 'gate-play.png');
       await m.screenshot(playShot);
       shots.push(playShot);
+      const shiftAfter = await m.layoutShift();
+      const shift = Math.round((shiftAfter.total - shiftBefore.total) * 1000) / 1000;
+      const shifts = shiftAfter.count - shiftBefore.count;
+      const stable = shift <= MAX_LAYOUT_SHIFT && shifts <= MAX_LAYOUT_SHIFT_COUNT;
+      add(
+        'no_layout_shift',
+        stable,
+        stable
+          ? `ランダム操作中のレイアウトシフト 合計${shift}・${shifts}回（上限 ${MAX_LAYOUT_SHIFT}・${MAX_LAYOUT_SHIFT_COUNT}回）`
+          : `操作や数値の更新で文字・ボタンの位置がずれる。レイアウトシフト 合計${shift}・${shifts}回（上限 ${MAX_LAYOUT_SHIFT}・${MAX_LAYOUT_SHIFT_COUNT}回）。ずれた要素: ${shiftAfter.top.map(([k, v]) => `${k}=${v}`).join(', ')}`,
+      );
       add('no_runtime_errors', m.errors.length === 0, m.errors.length ? m.errors.slice(0, 5).join(' | ') : 'ランダム操作90秒でエラーなし');
       add('score_is_finite', badScore === null, badScore === null ? 'score は常に有限' : `score が不正: ${badScore}`);
       add('game_progresses', changed, changed ? 'state か score が動いた' : 'ランダム操作で何も変化しない');

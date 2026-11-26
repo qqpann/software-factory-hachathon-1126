@@ -45,6 +45,7 @@ export async function runBuilder({ workDir, brief, round, prev, mock = false }) 
   const text = fill(prompt('builder'), {
     brief,
     contract: readText(path.join(ROOT, 'CONTRACT.md')),
+    quality: readText(path.join(ROOT, 'QUALITY.md'), '（なし）'),
     lessons: readText(path.join(ROOT, 'lessons.md'), '（なし）'),
     round,
     task,

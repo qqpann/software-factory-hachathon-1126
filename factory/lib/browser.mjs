@@ -16,6 +16,41 @@ function seedScript(seed) {
   })();`;
 }
 
+/**
+ * Record every layout shift (including ones right after input, which the
+ * standard CLS ignores): a game that moves its own buttons and text when you
+ * click is exactly what we want to catch.
+ */
+const LAYOUT_SHIFT_SCRIPT = `(() => {
+  const ls = (window.__layoutShift = { total: 0, count: 0, sources: {} });
+  const describe = (n) => {
+    if (!n) return '?';
+    const el = n.nodeType === 1 ? n : n.parentElement;
+    if (!el) return '#text';
+    let s = el.tagName.toLowerCase();
+    if (el.id) s += '#' + el.id;
+    else if (el.classList && el.classList.length) s += '.' + [...el.classList].slice(0, 2).join('.');
+    const t = (el.textContent || '').trim().replace(/\\s+/g, ' ').replace(/[0-9][0-9.,]*/g, '#').slice(0, 24);
+    return t ? s + '「' + t + '」' : s;
+  };
+  const take = (entries) => {
+      for (const e of entries) {
+        ls.total += e.value;
+        ls.count++;
+        for (const src of e.sources || []) {
+          const k = describe(src.node);
+          ls.sources[k] = (ls.sources[k] || 0) + e.value;
+        }
+      }
+  };
+  try {
+    const obs = new PerformanceObserver((list) => take(list.getEntries()));
+    obs.observe({ type: 'layout-shift', buffered: true });
+    // Pending entries are delivered on a task, which a frozen clock may delay.
+    ls.flush = () => take(obs.takeRecords());
+  } catch (e) {}
+})();`;
+
 export async function launchBrowser() {
   let chromium;
   try {
@@ -40,6 +75,7 @@ export async function launchBrowser() {
 export async function openGame(browser, htmlPath, { seed = 1 } = {}) {
   const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
   await context.addInitScript(seedScript(seed));
+  await context.addInitScript(LAYOUT_SHIFT_SCRIPT);
   const errors = [];
   const external = [];
   await context.route('**/*', (route) => {
@@ -81,6 +117,15 @@ export async function openGame(browser, htmlPath, { seed = 1 } = {}) {
         if (!g || typeof g !== 'object') return null;
         const pick = (v) => (typeof v === 'string' ? v.slice(0, 200) : v);
         return { state: g.state, score: g.score, title: pick(g.title), goal: pick(g.goal), controls: pick(g.controls) };
+      });
+    },
+    /** Layout shift so far: { total, count, top: [[element, amount], ...] }. */
+    async layoutShift() {
+      return page.evaluate(() => {
+        const ls = window.__layoutShift || { total: 0, count: 0, sources: {} };
+        if (ls.flush) ls.flush();
+        const top = Object.entries(ls.sources).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => [k, Math.round(v * 1000) / 1000]);
+        return { total: Math.round(ls.total * 1000) / 1000, count: ls.count, top };
       });
     },
     async hold(keys, ms) {

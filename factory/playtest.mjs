@@ -1,9 +1,9 @@
 import path from 'node:path';
 import { startPlayServer } from './play-server.mjs';
 import { runClaude } from './lib/claude.mjs';
-import { FACTORY_DIR, extractJson, fill, prompt, writeJson } from './lib/util.mjs';
+import { FACTORY_DIR, ROOT, extractJson, fill, prompt, readText, writeJson } from './lib/util.mjs';
 
-export const SCORE_KEYS = ['clarity', 'controls', 'goal', 'fairness', 'fun', 'brief_fit'];
+export const SCORE_KEYS = ['clarity', 'controls', 'goal', 'fairness', 'fun', 'brief_fit', 'visuals', 'stability', 'depth'];
 
 export function scorePlaytest(review) {
   if (!review?.scores) return 0;
@@ -27,7 +27,7 @@ export async function runPlaytest({ browser, htmlPath, roundDir, brief, maxActio
       review = await mockPlay(server.url);
     } else {
       const res = await runClaude({
-        prompt: fill(prompt('playtester'), { brief, play: playScript, maxActions }),
+        prompt: fill(prompt('playtester'), { brief, quality: readText(path.join(ROOT, 'QUALITY.md'), '（なし）'), play: playScript, maxActions }),
         cwd: roundDir,
         allowedTools: [`Bash(node ${playScript}:*)`, 'Read'],
         permissionMode: 'default',
@@ -61,7 +61,7 @@ async function mockPlay(url) {
   for (let i = 0; i < 6; i++) await call('hold', i % 2 ? 'ArrowLeft' : 'ArrowRight', 400);
   const last = await call('look');
   return {
-    scores: { clarity: 4, controls: 4, goal: 4, fairness: 3, fun: 3, brief_fit: 4 },
+    scores: { clarity: 4, controls: 4, goal: 4, fairness: 3, fun: 3, brief_fit: 4, visuals: 3, stability: 4, depth: 3 },
     reached: last.game?.state === 'won' ? 'won' : last.game?.state === 'lost' ? 'lost' : 'neither',
     bugs: [],
     fixes: ['（モック試遊）'],

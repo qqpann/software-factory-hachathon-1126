@@ -16,6 +16,7 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
   let g = await openGame(browser, htmlPath, { seed });
   let step = 0;
   let errorsSeen = 0;
+  let shiftSeen = (await g.layoutShift()).total;
   const allErrors = [];
 
   async function observe(action) {
@@ -25,6 +26,9 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
     const fresh = g.errors.slice(errorsSeen);
     errorsSeen = g.errors.length;
     allErrors.push(...fresh);
+    const ls = await g.layoutShift();
+    const shift = Math.round(Math.max(0, ls.total - shiftSeen) * 1000) / 1000;
+    shiftSeen = ls.total;
     const res = {
       step,
       action,
@@ -32,6 +36,7 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
       game: await g.readGame(),
       screenshot: path.relative(outDir, shot),
       new_errors: fresh,
+      layout_shift: shift,
       actions_left: Math.max(0, maxActions - step),
     };
     fs.appendFileSync(logPath, JSON.stringify(res) + '\n');
@@ -72,6 +77,7 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
         await g.close();
         g = await openGame(browser, htmlPath, { seed: seed + step });
         errorsSeen = 0;
+        shiftSeen = (await g.layoutShift()).total;
         return observe('restart');
       }
       default:
