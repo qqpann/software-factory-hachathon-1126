@@ -18,6 +18,10 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
   let errorsSeen = 0;
   let shiftSeen = (await g.layoutShift()).total;
   const allErrors = [];
+  // How long a clear takes, in game time: from entering 'playing' to 'won'.
+  let prevState = null;
+  let playStart = null;
+  const clears = [];
 
   async function observe(action) {
     step++;
@@ -29,11 +33,15 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
     const ls = await g.layoutShift();
     const shift = Math.round(Math.max(0, ls.total - shiftSeen) * 1000) / 1000;
     shiftSeen = ls.total;
+    const game = await g.readGame();
+    if (game?.state === 'playing' && prevState !== 'playing') playStart = g.time;
+    if (game?.state === 'won' && prevState !== 'won' && playStart !== null) clears.push(g.time - playStart);
+    prevState = game?.state ?? null;
     const res = {
       step,
       action,
       time_ms: g.time,
-      game: await g.readGame(),
+      game,
       screenshot: path.relative(outDir, shot),
       new_errors: fresh,
       layout_shift: shift,
@@ -69,7 +77,7 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
         return observe(`click ${x} ${y}`);
       }
       case 'wait': {
-        const ms = clamp(args[0], 50, 5000, 500);
+        const ms = clamp(args[0], 50, 10000, 500);
         await g.advance(ms);
         return observe(`wait ${ms}`);
       }
@@ -78,6 +86,8 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
         g = await openGame(browser, htmlPath, { seed: seed + step });
         errorsSeen = 0;
         shiftSeen = (await g.layoutShift()).total;
+        prevState = null;
+        playStart = null;
         return observe('restart');
       }
       default:
@@ -112,6 +122,10 @@ export async function startPlayServer(browser, htmlPath, outDir, { maxActions = 
     },
     get errors() {
       return allErrors;
+    },
+    /** Game-time milliseconds each clear took (first entry = first clear). */
+    get clears() {
+      return [...clears];
     },
     async close() {
       await queue;

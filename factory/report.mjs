@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fmtTime } from './volume.mjs';
 
 /** A Markdown report for the demo: score per round, screenshots, what changed. */
 export function writeReport(runDir, s) {
@@ -13,13 +14,13 @@ export function writeReport(runDir, s) {
     '',
     '## スコアの推移',
     '',
-    '| 周 | スコア | 機械判定 | 試遊 | 結果 | 費用 |',
-    '| -- | -- | -- | -- | -- | -- |',
+    '| 周 | スコア | 機械判定 | 試遊 | 結果 | クリア時間 | 費用 |',
+    '| -- | -- | -- | -- | -- | -- | -- |',
   ];
   for (const r of s.rounds) {
     const pt = r.playtest;
     lines.push(
-      `| ${r.round} | ${r.score} | ${r.gate.passed}/${r.gate.total} | ${pt ? pt.total : '-'} | ${pt?.review?.reached ?? '-'} | $${((r.build.costUsd || 0) + (pt?.costUsd || 0)).toFixed(2)} |`,
+      `| ${r.round} | ${r.score} | ${r.gate.passed}/${r.gate.total} | ${pt ? pt.total : '-'} | ${pt?.review?.reached ?? '-'} | ${Number.isFinite(pt?.clears_ms?.[0]) ? fmtTime(pt.clears_ms[0]) + (r.volume?.pass === false ? ' ⚠短い' : '') : '-'} | $${((r.build.costUsd || 0) + (pt?.costUsd || 0)).toFixed(2)} |`,
     );
   }
   lines.push('', '`' + bar(s.rounds.map((r) => r.score)) + '`', '');

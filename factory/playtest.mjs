@@ -45,6 +45,7 @@ export async function runPlaytest({ browser, htmlPath, roundDir, brief, maxActio
     total: scorePlaytest(review),
     review,
     steps: server.steps,
+    clears_ms: server.clears,
     runtime_errors: [...new Set(server.errors)].slice(0, 10),
     costUsd,
     error,

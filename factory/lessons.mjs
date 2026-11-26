@@ -13,6 +13,7 @@ export function historyText(rounds) {
         `### ${r.round}周目: score=${r.score}`,
         failed.length ? `- 機械判定NG: ${failed.join('; ')}` : '- 機械判定: すべて通過',
         rv ? `- 試遊: ${rv.reached} / ${rv.summary || ''}` : '',
+        r.volume?.pass === false ? `- ${r.volume.detail}` : '',
         ...(rv?.bugs || []).map((b) => `- 不具合: ${b.what}`),
         ...(rv?.fixes || []).map((f) => `- 修正依頼: ${f}`),
       ]

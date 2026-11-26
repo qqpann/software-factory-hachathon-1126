@@ -16,6 +16,10 @@ export function feedbackText(prev) {
     lines.push('### 実行時エラー');
     for (const e of prev.gate.errors.slice(0, 8)) lines.push(`- ${e}`);
   }
+  if (prev.volume?.pass === false) {
+    lines.push('### ボリューム（最優先）');
+    lines.push(`- ${prev.volume.detail}`);
+  }
   const r = prev.playtest?.review;
   if (r) {
     lines.push(`### 試遊AIの評価（合計 ${prev.playtest.total}／1.0、結果: ${r.reached}）`);

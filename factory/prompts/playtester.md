@@ -17,7 +17,7 @@ node {{play}} press Space               # キーを1回押す（約0.15秒進む
 node {{play}} hold ArrowLeft 600        # キーを押し続ける（ミリ秒、最大3000）
 node {{play}} hold ArrowUp+ArrowRight 400  # 同時押し
 node {{play}} click 480 360             # クリック（画面は960×720）
-node {{play}} wait 1000                 # 何もせず待つ
+node {{play}} wait 1000                 # 何もせず待つ（最大10000）
 node {{play}} restart                   # 最初から開き直す
 ```
 

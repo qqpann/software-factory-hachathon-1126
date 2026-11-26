@@ -10,6 +10,7 @@ import { feedbackText } from './build.mjs';
 import { scorePlaytest, SCORE_KEYS } from './playtest.mjs';
 import { historyText } from './lessons.mjs';
 import { writeReport } from './report.mjs';
+import { minClearMinutes, volumeCheck } from './volume.mjs';
 import { runClaude } from './lib/claude.mjs';
 import { extractJson, FACTORY_DIR, ROOT, prompt } from './lib/util.mjs';
 
@@ -57,6 +58,20 @@ await test('作る係と試遊係のプロンプトに品質基準が入る', ()
   assert.ok(fs.readFileSync(path.join(ROOT, 'QUALITY.md'), 'utf8').includes('レイアウト'));
 });
 
+await test('ボリューム: brief の最低クリア時間を読み、早すぎるクリアを落とす', () => {
+  assert.equal(minClearMinutes('- クリアまで最低 5 分はかかる'), 5);
+  assert.equal(minClearMinutes('テーマだけ'), null);
+  const fast = volumeCheck({ clears_ms: [105000] }, 5);
+  assert.equal(fast.pass, false);
+  assert.equal(fast.factor, 0.35);
+  assert.ok(fast.detail.includes('1分45秒'), fast.detail);
+  assert.equal(volumeCheck({ clears_ms: [360000] }, 5).pass, true);
+  assert.equal(volumeCheck({ clears_ms: [] }, 5).pass, null);
+  assert.equal(volumeCheck({ clears_ms: [1000] }, null).factor, 1);
+  const t = feedbackText({ round: 1, volume: fast });
+  assert.ok(t.includes('ボリューム不足'), t);
+});
+
 await test('JSON抽出: 最後のjsonブロックを読む', () => {
   assert.deepEqual(extractJson('前置き\n```json\n{"a":1}\n```\n後で\n```json\n{"a":2}\n```'), { a: 2 });
   assert.deepEqual(extractJson('結果: {"x": [1,2]}'), { x: [1, 2] });
@@ -82,7 +97,7 @@ await test('教訓用の履歴とレポートを書ける', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'factory-report-'));
   const p = writeReport(dir, { slug: 'x', brief: 'briefs/x.md', stopReason: 'stalled', bestRound: 1, bestScore: 0.4, cost: 0.8, rounds: [fakeRound] });
   const md = fs.readFileSync(p, 'utf8');
-  assert.ok(md.includes('停滞で終了') && md.includes('| 1 | 0.4 | 5/8 | 0.5 | lost |'));
+  assert.ok(md.includes('停滞で終了') && md.includes('| 1 | 0.4 | 5/8 | 0.5 | lost | - |'));
 });
 
 await test('claude -p の JSON 出力から本文と費用を読む（偽のclaude）', async () => {
@@ -155,6 +170,18 @@ if (browser) {
     await call('wait', 100);
     const f = await call('look');
     assert.ok(f.error && f.actions_left === 0, '上限が効かない');
+    await s.close();
+  });
+
+  await test('試遊サーバー: クリアまでのゲーム内時間を測る', async () => {
+    const s = await startPlayServer(browser, fx('sample-clicker.html'), path.join(tmp, 'clear'), { maxActions: 40 });
+    const call = (cmd, ...args) => fetch(s.url, { method: 'POST', body: JSON.stringify({ cmd, args }) }).then((r) => r.json());
+    await call('press', 'Space');
+    let last;
+    for (let i = 0; i < 30; i++) last = await call('click', 480, 360);
+    assert.equal(last.game.state, 'won');
+    assert.equal(s.clears.length, 1);
+    assert.ok(s.clears[0] >= 3000 && s.clears[0] < 6000, String(s.clears[0]));
     await s.close();
   });
   await browser.close();

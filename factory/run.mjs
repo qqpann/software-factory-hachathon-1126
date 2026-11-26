@@ -10,6 +10,7 @@ import { runPlaytest } from './playtest.mjs';
 import { updateLessons } from './lessons.mjs';
 import { writeReport } from './report.mjs';
 import { launchBrowser } from './lib/browser.mjs';
+import { minClearMinutes, volumeCheck } from './volume.mjs';
 import { ROOT, ensureDir, log, parseArgs, readText, rel, slugOf, timestamp, writeJson } from './lib/util.mjs';
 
 const args = parseArgs(process.argv.slice(2));
@@ -27,6 +28,7 @@ const opts = {
   actions: Number(args.actions ?? 60),
   mock: !!args.mock,
 };
+const minMinutes = args['min-minutes'] ? Number(args['min-minutes']) : minClearMinutes(readText(briefPath));
 
 const slug = slugOf(briefPath);
 const brief = readText(briefPath);
@@ -36,10 +38,10 @@ let sinceImprove = 0;
 let cost = 0;
 let stopReason = 'max_rounds';
 
-/** 0..1. Gate contributes 30%, the AI playtest 70%. */
-function roundScore(gate, playtest) {
+/** 0..1. Gate contributes 30%, the AI playtest 70% (scaled down when the game is cleared too fast). */
+function roundScore(gate, playtest, volume) {
   const g = gate.total ? gate.passed / gate.total : 0;
-  return Math.round((g * 0.3 + (playtest ? playtest.total * 0.7 : 0)) * 100) / 100;
+  return Math.round((g * 0.3 + (playtest ? playtest.total * 0.7 * (volume?.factor ?? 1) : 0)) * 100) / 100;
 }
 
 let browser;
@@ -52,7 +54,7 @@ try {
 
 const runDir = ensureDir(path.join(ROOT, 'runs', slug, timestamp()));
 const workDir = ensureDir(path.join(runDir, 'work'));
-log(`工場を起動: ${slug}（最大${opts.maxRounds}周、合格ライン ${opts.threshold}${opts.mock ? '、モック' : ''}）`);
+log(`工場を起動: ${slug}（最大${opts.maxRounds}周、合格ライン ${opts.threshold}${minMinutes ? `、クリアまで最低${minMinutes}分` : ''}${opts.mock ? '、モック' : ''}）`);
 log(`記録: ${rel(runDir)}`);
 
 try {
@@ -79,8 +81,10 @@ try {
       log(`試遊 ${playtest.total}（${playtest.review?.reached ?? '?'}、${playtest.steps}手）${playtest.error ? ' ⚠ ' + playtest.error.split('\n')[0] : ''}`);
     }
 
-    const score = roundScore(gate, playtest);
-    const rec = { round, roundDir, score, build: { ok: build.ok, summary: build.summary, costUsd: build.costUsd }, gate, playtest };
+    const volume = playtest ? volumeCheck(playtest, minMinutes) : null;
+    if (volume?.pass !== undefined && volume?.pass !== null) log(volume.detail);
+    const score = roundScore(gate, playtest, volume);
+    const rec = { round, roundDir, score, build: { ok: build.ok, summary: build.summary, costUsd: build.costUsd }, gate, playtest, volume };
     rounds.push(rec);
     writeJson(path.join(runDir, 'summary.json'), { slug, brief: rel(briefPath), opts, cost, rounds: rounds.map(strip) });
 
@@ -90,7 +94,7 @@ try {
     } else sinceImprove++;
     log(`${round}周目のスコア ${score}（ベスト ${best.score}、累計 $${cost.toFixed(2)}）`);
 
-    if (gate.pass && playtest && playtest.total >= opts.threshold) {
+    if (gate.pass && playtest && playtest.total >= opts.threshold && volume?.pass !== false) {
       stopReason = 'completed';
       break;
     }
